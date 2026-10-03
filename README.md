@@ -4,14 +4,6 @@
 
 **Plateforme e-commerce en architecture Microservices**
 catalogue · commandes · paiement · livraison
-
-![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.6-6DB33F?logo=springboot&logoColor=white)
-![Spring Cloud](https://img.shields.io/badge/Spring_Cloud-Eureka-6DB33F?logo=spring&logoColor=white)
-![Angular](https://img.shields.io/badge/Angular-18-DD0031?logo=angular&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)
-![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger-85EA2D?logo=swagger&logoColor=black)
-
 </div>
 
 ---
@@ -25,8 +17,6 @@ catalogue · commandes · paiement · livraison
 6. [Installation et lancement](#-installation-et-lancement)
 7. [Documentation des API](#-documentation-des-api)
 8. [Structure du dépôt](#-structure-du-dépôt)
-9. [Limites et perspectives](#-limites-et-perspectives)
-10. [Équipe](#-équipe)
 
 ---
 
@@ -143,23 +133,6 @@ cd Backend/Microservices/livraison && mvn spring-boot:run
 cd Frontend && npm install && npm start
 ```
 
-Vérifier que les 5 services apparaissent sur http://localhost:8761.
-
-### Ordre de saisie conseillé
-Créer d'abord les éléments parents, puis les enfants :
-`Category` → `Product` · `CustomerOrder` → `OrderLine` · `Invoice` → `Payment` · `Carrier` → `Delivery`
-
-### Récapitulatif des ports
-
-| Composant | Port |
-|---|---|
-| Frontend Angular | 4200 |
-| user / produit / commande / paiement / livraison | 8081 / 8082 / 8083 / 8084 / 8085 |
-| Eureka | 8761 |
-| MySQL | 3306 |
-
----
-
 ## 📘 Documentation des API
 
 Chaque microservice expose :
@@ -198,32 +171,5 @@ com.awd.<service>
 
 ---
 
-## ⚠️ Limites et perspectives
-
-**Limites actuelles**
-- Le frontend appelle directement chaque service : il n'y a pas encore d'API Gateway.
-- Les services ne s'appellent pas entre eux : `userId`, `productId` et `orderId` ne sont pas vérifiés.
-- L'authentification est faite côté frontend à partir de `GET /api/users`, et les mots de passe sont stockés en clair. Elle n'est donc pas sécurisée.
-- Aucun test automatisé pour l'instant.
-
-**Feuille de route**
-- [ ] API Gateway (Spring Cloud Gateway) comme point d'entrée unique
-- [ ] Authentification JWT et hachage des mots de passe (BCrypt)
-- [ ] Appels interservices (OpenFeign) et validation des références
-- [ ] Parcours complet commande → paiement → livraison avec statuts
-- [ ] Résilience (Resilience4j) et événements asynchrones (RabbitMQ / Kafka)
-- [ ] Tests unitaires et d'intégration, collection Postman
-- [ ] Docker et `docker-compose`, intégration continue
-
----
-
-## 👥 Équipe
-
 Projet réalisé à **ESPRIT** dans le cadre du module d'architecture Microservices.
 
-| Membre | Rôle |
-|---|---|
-| _Nom Prénom_ | _à compléter_ |
-| _Nom Prénom_ | _à compléter_ |
-| _Nom Prénom_ | _à compléter_ |
-| _Nom Prénom_ | _à compléter_ |
