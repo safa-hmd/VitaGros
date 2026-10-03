@@ -1,0 +1,73 @@
+<div class="auth-wrapper" style="background: radial-gradient(circle at top right, #312e81 0%, #0f172a 70%);">
+  <div class="auth-card" style="border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 10px 40px rgba(79, 70, 229, 0.25);">
+    <div class="auth-logo">
+      <span class="logo-icon" style="background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🛡️</span>
+      <h1 style="background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VitaGros Admin</h1>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 1.25rem;">
+      <span class="badge badge-danger" style="font-size: 0.8rem; padding: 0.25rem 0.75rem; letter-spacing: 0.5px;">
+        PORTAIL D'ADMINISTRATION SÉCURISÉ
+      </span>
+      <h2 style="margin-top: 0.75rem; font-size: 1.5rem;">Connexion Back-Office</h2>
+      <p class="auth-subtitle">Accès restreint aux utilisateurs dotés du rôle <strong>ADMIN</strong></p>
+    </div>
+
+    <div class="alert alert-error" *ngIf="error()">
+      <span>⚠️</span> {{ error() }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="auth-form">
+      <div class="field-group">
+        <label for="admin-email">Email Administrateur</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input
+            id="admin-email"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="admin@vitagros.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="admin-password">Mot de passe</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input
+            id="admin-password"
+            [type]="showPwd() ? 'text' : 'password'"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+          <button type="button" class="pwd-toggle" (click)="showPwd.set(!showPwd())">
+            {{ showPwd() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [class.loading]="loading()" [disabled]="loading()"
+              style="background: linear-gradient(135deg, #4f46e5, #9333ea); border: none; font-weight: 600;">
+        <span *ngIf="!loading()">👑 Se connecter en Administrateur</span>
+        <span *ngIf="loading()" class="spinner"></span>
+      </button>
+
+      <button type="button" class="btn-secondary" (click)="fillAdminDemo()" style="margin-top: 0.5rem; font-size: 0.85rem;">
+        ⚡ Remplir identifiants Admin Démo
+      </button>
+    </form>
+
+    <div style="margin-top: 1.5rem; text-align: center; border-top: 1px solid var(--border); padding-top: 1rem;">
+      <p class="auth-link" style="margin: 0;">
+        Vous êtes un client ? <a routerLink="/auth/login" style="color: var(--secondary); font-weight: 500;">Accéder à la boutique</a>
+      </p>
+    </div>
+  </div>
+</div>

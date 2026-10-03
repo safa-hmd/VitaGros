@@ -1,0 +1,79 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="logo-icon">🛒</span>
+      <h1>ShopMicro</h1>
+    </div>
+    <h2>Créer un compte</h2>
+    <p class="auth-subtitle">Rejoignez-nous en quelques secondes.</p>
+
+    <div class="alert alert-error" *ngIf="error()">
+      <span>⚠️</span> {{ error() }}
+    </div>
+    <div class="alert alert-success" *ngIf="success()">
+      <span>✅</span> Compte créé ! Redirection…
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-row">
+        <div class="field-group">
+          <label for="firstname">Prénom</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input id="firstname" type="text" name="firstname" [(ngModel)]="firstname"
+              placeholder="Jean" required />
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="lastname">Nom</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input id="lastname" type="text" name="lastname" [(ngModel)]="lastname"
+              placeholder="Dupont" required />
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="reg-email">Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input id="reg-email" type="email" name="email" [(ngModel)]="email"
+            placeholder="votre@email.com" required autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="reg-password">Mot de passe</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input id="reg-password" [type]="showPwd() ? 'text' : 'password'"
+            name="password" [(ngModel)]="password" placeholder="Min. 6 caractères"
+            required minlength="6" autocomplete="new-password" />
+          <button type="button" class="pwd-toggle" (click)="showPwd.set(!showPwd())">
+            {{ showPwd() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="confirm-password">Confirmer le mot de passe</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input id="confirm-password" [type]="showPwd() ? 'text' : 'password'"
+            name="confirm" [(ngModel)]="confirm" placeholder="••••••••"
+            required autocomplete="new-password" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [class.loading]="loading()" [disabled]="loading()">
+        <span *ngIf="!loading()">S'inscrire</span>
+        <span *ngIf="loading()" class="spinner"></span>
+      </button>
+    </form>
+
+    <p class="auth-link">
+      Déjà un compte ? <a routerLink="/auth/login">Se connecter</a>
+    </p>
+  </div>
+</div>

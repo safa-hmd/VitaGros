@@ -1,0 +1,71 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">💳 Paiements</h1>
+      <p class="page-subtitle">Suivi des transactions</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouveau paiement</button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouveau' }} paiement</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="field-group">
+        <label>Méthode</label>
+        <select [(ngModel)]="form.method" name="method">
+          <option value="CARD">Carte bancaire</option>
+          <option value="CASH">Espèces</option>
+          <option value="PAYPAL">PayPal</option>
+          <option value="VIREMENT">Virement</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Montant (€)</label>
+        <input type="number" [(ngModel)]="form.amount" name="amount" step="0.01" required />
+      </div>
+      <div class="field-group">
+        <label>Date de paiement</label>
+        <input type="datetime-local" [(ngModel)]="form.paidAt" name="paidAt" required />
+      </div>
+      <div class="field-group">
+        <label>Facture</label>
+        <select [(ngModel)]="invoiceId" name="invoiceId">
+          <option [ngValue]="null">-- Aucune --</option>
+          <option *ngFor="let inv of invoices()" [ngValue]="inv.id">{{ inv.id }} – {{ inv.amount }}€</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Modifier' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Méthode</th><th>Montant</th><th>Date</th><th>Facture</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of payments()" class="table-row">
+            <td><span class="id-badge">{{ p.id }}</span></td>
+            <td><span class="method-badge">{{ p.method }}</span></td>
+            <td><span class="price-badge">{{ p.amount | currency:'EUR':'symbol':'1.2-2' }}</span></td>
+            <td>{{ p.paidAt | slice:0:16 }}</td>
+            <td>{{ p.invoice ? '#' + p.invoice.id : '—' }}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(p)">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(p.id!)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="payments().length === 0">
+            <td colspan="6" class="empty-row">Aucun paiement.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

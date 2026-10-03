@@ -1,0 +1,82 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">📦 Produits</h1>
+      <p class="page-subtitle">Gérez votre catalogue de produits</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouveau produit</button>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <!-- Form Panel -->
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouveau' }} produit</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="field-group">
+        <label>Nom</label>
+        <input type="text" [(ngModel)]="form.name" name="name" placeholder="Nom du produit" required />
+      </div>
+      <div class="field-group">
+        <label>Prix (€)</label>
+        <input type="number" [(ngModel)]="form.price" name="price" placeholder="0.00" step="0.01" required />
+      </div>
+      <div class="field-group">
+        <label>Stock</label>
+        <input type="number" [(ngModel)]="form.stock" name="stock" placeholder="0" required />
+      </div>
+      <div class="field-group">
+        <label>Catégorie</label>
+        <select [(ngModel)]="categoryId" name="category">
+          <option [ngValue]="null">-- Aucune --</option>
+          <option *ngFor="let c of categories()" [ngValue]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Modifier' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Table -->
+  <div class="card table-card">
+    <div class="table-header">
+      <span class="table-count">{{ products().length }} produit(s)</span>
+      <input type="text" class="search-input" [(ngModel)]="search" placeholder="🔍 Rechercher…" />
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Prix</th>
+            <th>Stock</th>
+            <th>Catégorie</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of filtered()" class="table-row">
+            <td><span class="id-badge">{{ p.id }}</span></td>
+            <td class="font-medium">{{ p.name }}</td>
+            <td><span class="price-badge">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</span></td>
+            <td>
+              <span class="stock-badge" [class.low]="p.stock < 10">{{ p.stock }}</span>
+            </td>
+            <td>{{ p.category?.name || '—' }}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(p)" title="Modifier">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(p.id!)" title="Supprimer">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="filtered().length === 0">
+            <td colspan="6" class="empty-row">Aucun produit trouvé.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

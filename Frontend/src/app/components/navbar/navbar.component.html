@@ -1,0 +1,91 @@
+<nav class="navbar" [class.scrolled]="scrolled()">
+  <div class="navbar-brand">
+    <a routerLink="/dashboard" class="brand-link">
+      <span class="brand-icon">🛒</span>
+      <span class="brand-name">VitaGros</span>
+    </a>
+  </div>
+
+  <div class="navbar-menu" [class.open]="menuOpen()">
+    <a routerLink="/dashboard" routerLinkActive="nav-active"
+       class="nav-item" (click)="menuOpen.set(false)">
+      <span>🏠</span> Dashboard
+    </a>
+
+    <!-- Products dropdown -->
+    <div class="nav-dropdown" [class.open]="openDrop() === 'products'">
+      <button class="nav-item nav-dropdown-btn" (click)="toggleDrop('products')">
+        <span>📦</span> Produits <span class="arrow">▾</span>
+      </button>
+      <div class="dropdown-menu">
+        <a routerLink="/products" class="dropdown-item" (click)="closeDrop()">📦 Produits</a>
+        <a routerLink="/categories" class="dropdown-item" (click)="closeDrop()">🏷️ Catégories</a>
+      </div>
+    </div>
+
+    <!-- Orders dropdown -->
+    <div class="nav-dropdown" [class.open]="openDrop() === 'orders'">
+      <button class="nav-item nav-dropdown-btn" (click)="toggleDrop('orders')">
+        <span>🛒</span> Commandes <span class="arrow">▾</span>
+      </button>
+      <div class="dropdown-menu">
+        <a routerLink="/orders" class="dropdown-item" (click)="closeDrop()">🛒 Commandes</a>
+        <a routerLink="/order-lines" class="dropdown-item" (click)="closeDrop()">📋 Lignes commande</a>
+      </div>
+    </div>
+
+    <!-- Payments dropdown -->
+    <div class="nav-dropdown" [class.open]="openDrop() === 'payments'">
+      <button class="nav-item nav-dropdown-btn" (click)="toggleDrop('payments')">
+        <span>💳</span> Paiements <span class="arrow">▾</span>
+      </button>
+      <div class="dropdown-menu">
+        <a routerLink="/invoices" class="dropdown-item" (click)="closeDrop()">🧾 Factures</a>
+        <a routerLink="/payments" class="dropdown-item" (click)="closeDrop()">💳 Paiements</a>
+      </div>
+    </div>
+
+    <!-- Deliveries dropdown -->
+    <div class="nav-dropdown" [class.open]="openDrop() === 'deliveries'">
+      <button class="nav-item nav-dropdown-btn" (click)="toggleDrop('deliveries')">
+        <span>🚚</span> Livraisons <span class="arrow">▾</span>
+      </button>
+      <div class="dropdown-menu">
+        <a routerLink="/deliveries" class="dropdown-item" (click)="closeDrop()">🚚 Livraisons</a>
+        <a routerLink="/carriers" class="dropdown-item" (click)="closeDrop()">🏢 Transporteurs</a>
+      </div>
+    </div>
+
+    <!-- Users dropdown -->
+    <div class="nav-dropdown" [class.open]="openDrop() === 'users'">
+      <button class="nav-item nav-dropdown-btn" (click)="toggleDrop('users')">
+        <span>👥</span> Utilisateurs <span class="arrow">▾</span>
+      </button>
+      <div class="dropdown-menu">
+        <a routerLink="/users" class="dropdown-item" (click)="closeDrop()">👥 Utilisateurs</a>
+        <a routerLink="/roles" class="dropdown-item" (click)="closeDrop()">🔑 Rôles</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="navbar-actions">
+    <!-- User menu -->
+    <div class="user-dropdown" [class.open]="openDrop() === 'user'">
+      <button class="user-btn" (click)="toggleDrop('user')">
+        <div class="user-avatar">{{ userInitials() }}</div>
+        <span class="user-name">{{ userName() }}</span>
+        <span class="arrow">▾</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu--right">
+        <a routerLink="/profile" class="dropdown-item" (click)="closeDrop()">👤 Mon profil</a>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item dropdown-item--danger" (click)="logout()">🚪 Déconnexion</button>
+      </div>
+    </div>
+
+    <!-- Hamburger -->
+    <button class="hamburger" (click)="menuOpen.set(!menuOpen())">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>

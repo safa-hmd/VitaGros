@@ -1,0 +1,61 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">🧾 Factures</h1>
+      <p class="page-subtitle">Gestion des factures</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouvelle facture</button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouvelle' }} facture</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="field-group">
+        <label>ID Commande</label>
+        <input type="number" [(ngModel)]="form.orderId" name="orderId" required />
+      </div>
+      <div class="field-group">
+        <label>Montant (€)</label>
+        <input type="number" [(ngModel)]="form.amount" name="amount" step="0.01" required />
+      </div>
+      <div class="field-group">
+        <label>Date d'émission</label>
+        <input type="date" [(ngModel)]="form.issueDate" name="issueDate" required />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Modifier' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-header">
+      <span class="table-count">{{ invoices().length }} facture(s)</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Commande</th><th>Montant</th><th>Date</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inv of invoices()" class="table-row">
+            <td><span class="id-badge">{{ inv.id }}</span></td>
+            <td>#{{ inv.orderId }}</td>
+            <td><span class="price-badge">{{ inv.amount | currency:'EUR':'symbol':'1.2-2' }}</span></td>
+            <td>{{ inv.issueDate }}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(inv)">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(inv.id!)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="invoices().length === 0">
+            <td colspan="5" class="empty-row">Aucune facture.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

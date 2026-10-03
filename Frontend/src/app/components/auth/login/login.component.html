@@ -1,0 +1,78 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="logo-icon">🛒</span>
+      <h1>VitaGros</h1>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 1.25rem;">
+      <span class="badge badge-primary" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">
+        ESPACE CLIENT
+      </span>
+      <h2 style="margin-top: 0.5rem;">Connexion Client</h2>
+      <p class="auth-subtitle">Accédez à vos commandes, panier et catalogue de produits</p>
+    </div>
+
+    <div class="alert alert-error" *ngIf="error()">
+      <span>⚠️</span> {{ error() }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="auth-form">
+      <div class="field-group">
+        <label for="email">Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="client@vitagros.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="password">Mot de passe</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input
+            id="password"
+            [type]="showPwd() ? 'text' : 'password'"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+          <button type="button" class="pwd-toggle" (click)="showPwd.set(!showPwd())">
+            {{ showPwd() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [class.loading]="loading()" [disabled]="loading()">
+        <span *ngIf="!loading()">🛍️ Se connecter à la boutique</span>
+        <span *ngIf="loading()" class="spinner"></span>
+      </button>
+
+    </form>
+
+    <div style="margin-top: 1.5rem; text-align: center; border-top: 1px solid var(--border); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+      <p class="auth-link" style="margin: 0;">
+        Pas encore de compte client ? <a routerLink="/auth/register">Créer un compte</a>
+      </p>
+
+      <div style="background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--primary); border-radius: var(--radius-sm); padding: 0.75rem;">
+        <span style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
+          Vous êtes un membre de l'équipe d'administration ?
+        </span>
+        <a routerLink="/auth/admin-login" style="font-size: 0.9rem; font-weight: 600; color: var(--primary-light); text-decoration: none;">
+          🛡️ Accéder au Portail Administrateur →
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

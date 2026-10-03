@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">🏢 Transporteurs</h1>
+      <p class="page-subtitle">Gestion des transporteurs (carriers)</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouveau transporteur</button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouveau' }} transporteur</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="field-group">
+        <label>Nom</label>
+        <input type="text" [(ngModel)]="form.name" name="name" placeholder="Nom du transporteur" required />
+      </div>
+      <div class="field-group">
+        <label>Téléphone</label>
+        <input type="text" [(ngModel)]="form.phone" name="phone" placeholder="+216 XX XXX XXX" required />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Modifier' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Nom</th><th>Téléphone</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of carriers()" class="table-row">
+            <td><span class="id-badge">{{ c.id }}</span></td>
+            <td class="font-medium">{{ c.name }}</td>
+            <td>{{ c.phone }}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(c)">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(c.id!)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="carriers().length === 0">
+            <td colspan="4" class="empty-row">Aucun transporteur.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

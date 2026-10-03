@@ -1,0 +1,66 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">📋 Lignes de commande</h1>
+      <p class="page-subtitle">Détail des articles par commande</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouvelle ligne</button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouvelle' }} ligne de commande</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="field-group">
+        <label>ID Produit</label>
+        <input type="number" [(ngModel)]="form.productId" name="productId" required />
+      </div>
+      <div class="field-group">
+        <label>Quantité</label>
+        <input type="number" [(ngModel)]="form.quantity" name="quantity" min="1" required />
+      </div>
+      <div class="field-group">
+        <label>Prix unitaire (€)</label>
+        <input type="number" [(ngModel)]="form.unitPrice" name="unitPrice" step="0.01" required />
+      </div>
+      <div class="field-group">
+        <label>Commande</label>
+        <select [(ngModel)]="orderId" name="orderId">
+          <option [ngValue]="null">-- Sélectionner --</option>
+          <option *ngFor="let o of orders()" [ngValue]="o.id">{{ o.id }} – {{ o.status }}</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Modifier' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Produit ID</th><th>Quantité</th><th>Prix unitaire</th><th>Commande</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of lines()" class="table-row">
+            <td><span class="id-badge">{{ l.id }}</span></td>
+            <td>{{ l.productId }}</td>
+            <td>{{ l.quantity }}</td>
+            <td>{{ l.unitPrice | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td>{{ l.customerOrder?.id }} – {{ l.customerOrder?.status }}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(l)">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(l.id!)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="lines().length === 0">
+            <td colspan="6" class="empty-row">Aucune ligne de commande.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

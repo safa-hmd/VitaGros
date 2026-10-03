@@ -1,0 +1,89 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Mon Profil</h1>
+    <p class="page-subtitle">Gérez vos informations personnelles</p>
+  </div>
+
+  <div class="profile-layout">
+    <!-- Avatar Card -->
+    <div class="profile-avatar-card card">
+      <div class="avatar-circle">
+        {{ initials() }}
+      </div>
+      <h3>{{ form.firstname }} {{ form.lastname }}</h3>
+      <p class="avatar-email">{{ form.email }}</p>
+      <span class="badge" [class.badge-danger]="form.role === 'ADMIN'" [class.badge-primary]="form.role !== 'ADMIN'">
+        {{ form.role === 'ADMIN' ? '👑 Administrateur' : '👤 Client (USER)' }}
+      </span>
+    </div>
+
+    <!-- Edit Form Card -->
+    <div class="card">
+      <h3 class="card-title">Informations personnelles</h3>
+
+      <div class="alert alert-success" *ngIf="success()">
+        ✅ Profil mis à jour avec succès !
+      </div>
+      <div class="alert alert-error" *ngIf="error()">
+        ⚠️ {{ error() }}
+      </div>
+
+      <form (ngSubmit)="save()" class="profile-form">
+        <div class="form-row">
+          <div class="field-group">
+            <label for="p-firstname">Prénom</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input id="p-firstname" type="text" name="firstname"
+                [(ngModel)]="form.firstname" placeholder="Prénom" required />
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="p-lastname">Nom</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input id="p-lastname" type="text" name="lastname"
+                [(ngModel)]="form.lastname" placeholder="Nom" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="p-email">Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input id="p-email" type="email" name="email"
+              [(ngModel)]="form.email" placeholder="votre@email.com" required />
+          </div>
+        </div>
+
+        <div class="form-divider">
+          <span>Changer le mot de passe (optionnel)</span>
+        </div>
+
+        <div class="field-group">
+          <label for="p-password">Nouveau mot de passe</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input id="p-password" [type]="showPwd() ? 'text' : 'password'"
+              name="password" [(ngModel)]="newPassword"
+              placeholder="Laisser vide pour ne pas changer" />
+            <button type="button" class="pwd-toggle" (click)="showPwd.set(!showPwd())">
+              {{ showPwd() ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="saving()">
+            <span *ngIf="!saving()">💾 Enregistrer</span>
+            <span *ngIf="saving()" class="spinner"></span>
+          </button>
+          <button type="button" class="btn-secondary" (click)="resetForm()">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

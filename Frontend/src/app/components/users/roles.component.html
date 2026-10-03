@@ -1,0 +1,38 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">🔑 Rôles du Système (Enum)</h1>
+      <p class="page-subtitle">Définition des rôles immuables du système e-commerce : ADMIN et USER</p>
+    </div>
+    <a routerLink="/users" class="btn-primary">👥 Gérer les utilisateurs</a>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-bottom: 2rem;">
+    <div *ngFor="let r of rolesList" class="card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="badge" [class]="r.badgeClass" style="font-size: 0.95rem; padding: 0.35rem 0.8rem;">
+          {{ r.code }}
+        </span>
+        <span style="font-size: 1.25rem; font-weight: 700; color: var(--text);">
+          {{ getCount(r.code) }} compte(s)
+        </span>
+      </div>
+
+      <h3 style="font-size: 1.2rem; font-weight: 600; color: var(--text);">{{ r.name }}</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">{{ r.description }}</p>
+
+      <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: auto;">
+        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem; letter-spacing: 0.5px;">
+          Privilèges & Droits :
+        </h4>
+        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;">
+          <li *ngFor="let p of r.permissions" style="font-size: 0.88rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="color: var(--success);">✓</span> {{ p }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

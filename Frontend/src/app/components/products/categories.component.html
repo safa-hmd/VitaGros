@@ -1,0 +1,56 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">🏷️ Catégories</h1>
+      <p class="page-subtitle">Organisez vos produits par catégories</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouvelle catégorie</button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouvelle' }} catégorie</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="field-group">
+        <label>Nom</label>
+        <input type="text" [(ngModel)]="form.name" name="name" placeholder="Nom de la catégorie" required />
+      </div>
+      <div class="field-group">
+        <label>Description</label>
+        <input type="text" [(ngModel)]="form.description" name="description" placeholder="Description" />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Modifier' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-header">
+      <span class="table-count">{{ categories().length }} catégorie(s)</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Nom</th><th>Description</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of categories()" class="table-row">
+            <td><span class="id-badge">{{ c.id }}</span></td>
+            <td class="font-medium">{{ c.name }}</td>
+            <td>{{ c.description }}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(c)">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(c.id!)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="categories().length === 0">
+            <td colspan="4" class="empty-row">Aucune catégorie.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

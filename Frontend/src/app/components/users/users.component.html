@@ -1,0 +1,88 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">👥 Utilisateurs</h1>
+      <p class="page-subtitle">Gestion des comptes utilisateurs et attribution des rôles (ADMIN / USER)</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouvel utilisateur</button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouvel' }} utilisateur</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="form-row">
+        <div class="field-group">
+          <label>Prénom</label>
+          <input type="text" [(ngModel)]="form.firstname" name="firstname" required />
+        </div>
+        <div class="field-group">
+          <label>Nom</label>
+          <input type="text" [(ngModel)]="form.lastname" name="lastname" required />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="form.email" name="email" required />
+      </div>
+      <div class="field-group">
+        <label>Mot de passe {{ editId() ? '(laisser vide = inchangé)' : '' }}</label>
+        <input type="password" [(ngModel)]="form.password" name="password" [required]="!editId()" />
+      </div>
+      <div class="field-group">
+        <label>Rôle (Enum)</label>
+        <select [(ngModel)]="selectedRole" name="role">
+          <option *ngFor="let r of roles" [value]="r">
+            {{ r === 'ADMIN' ? '👑 Administrateur (ADMIN)' : '👤 Utilisateur Client (USER)' }}
+          </option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Enregistrer' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-header">
+      <span class="table-count">{{ users().length }} utilisateur(s)</span>
+      <input type="text" class="search-input" [(ngModel)]="search" placeholder="🔍 Rechercher par nom, email, rôle…" />
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Prénom</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of filtered()" class="table-row">
+            <td><span class="id-badge">{{ u.id }}</span></td>
+            <td>{{ u.firstname }}</td>
+            <td class="font-medium">{{ u.lastname }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+              <span class="badge" [class.badge-danger]="u.role === 'ADMIN'" [class.badge-primary]="u.role !== 'ADMIN'">
+                {{ u.role === 'ADMIN' ? '👑 ADMIN' : '👤 USER' }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(u)" title="Modifier">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(u.id!)" title="Supprimer">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="filtered().length === 0">
+            <td colspan="6" class="empty-row">Aucun utilisateur trouvé.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

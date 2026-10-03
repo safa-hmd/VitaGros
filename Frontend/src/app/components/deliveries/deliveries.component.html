@@ -1,0 +1,74 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">🚚 Livraisons</h1>
+      <p class="page-subtitle">Suivi des livraisons en cours</p>
+    </div>
+    <button class="btn-primary" (click)="openForm()">+ Nouvelle livraison</button>
+  </div>
+
+  <div class="alert alert-error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="form-panel card" *ngIf="showForm()">
+    <h3 class="card-title">{{ editId() ? 'Modifier' : 'Nouvelle' }} livraison</h3>
+    <form (ngSubmit)="save()" class="grid-form">
+      <div class="field-group">
+        <label>ID Commande</label>
+        <input type="number" [(ngModel)]="form.orderId" name="orderId" required />
+      </div>
+      <div class="field-group">
+        <label>Adresse</label>
+        <input type="text" [(ngModel)]="form.address" name="address" placeholder="Adresse de livraison" required />
+      </div>
+      <div class="field-group">
+        <label>Statut</label>
+        <select [(ngModel)]="form.status" name="status">
+          <option value="PENDING">En attente</option>
+          <option value="IN_TRANSIT">En transit</option>
+          <option value="DELIVERED">Livré</option>
+          <option value="FAILED">Échoué</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Transporteur</label>
+        <select [(ngModel)]="carrierId" name="carrierId">
+          <option [ngValue]="null">-- Aucun --</option>
+          <option *ngFor="let c of carriers()" [ngValue]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">{{ editId() ? '💾 Modifier' : '➕ Ajouter' }}</button>
+        <button type="button" class="btn-secondary" (click)="reset()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-header">
+      <span class="table-count">{{ deliveries().length }} livraison(s)</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Commande</th><th>Adresse</th><th>Statut</th><th>Transporteur</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of deliveries()" class="table-row">
+            <td><span class="id-badge">{{ d.id }}</span></td>
+            <td>#{{ d.orderId }}</td>
+            <td>{{ d.address }}</td>
+            <td><span class="status-badge" [class]="'status-' + (d.status ? d.status.toLowerCase() : '')">{{ d.status }}</span></td>
+            <td>{{ d.carrier?.name || '—' }}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" (click)="edit(d)">✏️</button>
+              <button class="btn-icon btn-delete" (click)="remove(d.id!)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="deliveries().length === 0">
+            <td colspan="6" class="empty-row">Aucune livraison.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

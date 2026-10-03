@@ -1,0 +1,67 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Tableau de bord</h1>
+      <p class="page-subtitle">Bienvenue, {{ userName() }} ! Vue d'ensemble de votre e-commerce.</p>
+    </div>
+    <div class="header-date">{{ today }}</div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <a *ngFor="let s of stats()" [routerLink]="s.link" class="stat-card" [class]="'stat-card--' + s.color">
+      <div class="stat-icon">{{ s.icon }}</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ s.value }}</div>
+        <div class="stat-label">{{ s.label }}</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="dashboard-section">
+    <h2 class="section-title">Accès rapides</h2>
+    <div class="quick-links">
+      <a routerLink="/products" class="quick-link card">
+        <span class="ql-icon">📦</span>
+        <span>Produits</span>
+      </a>
+      <a routerLink="/categories" class="quick-link card">
+        <span class="ql-icon">🏷️</span>
+        <span>Catégories</span>
+      </a>
+      <a routerLink="/orders" class="quick-link card">
+        <span class="ql-icon">🛒</span>
+        <span>Commandes</span>
+      </a>
+      <a routerLink="/order-lines" class="quick-link card">
+        <span class="ql-icon">📋</span>
+        <span>Lignes de commande</span>
+      </a>
+      <a routerLink="/invoices" class="quick-link card">
+        <span class="ql-icon">🧾</span>
+        <span>Factures</span>
+      </a>
+      <a routerLink="/payments" class="quick-link card">
+        <span class="ql-icon">💳</span>
+        <span>Paiements</span>
+      </a>
+      <a routerLink="/deliveries" class="quick-link card">
+        <span class="ql-icon">🚚</span>
+        <span>Livraisons</span>
+      </a>
+      <a routerLink="/carriers" class="quick-link card">
+        <span class="ql-icon">🏢</span>
+        <span>Transporteurs</span>
+      </a>
+      <a routerLink="/users" class="quick-link card">
+        <span class="ql-icon">👥</span>
+        <span>Utilisateurs</span>
+      </a>
+      <a routerLink="/roles" class="quick-link card">
+        <span class="ql-icon">🔑</span>
+        <span>Rôles</span>
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<h2>{{ entity.service }} / {{ entity.label }}</h2>
+<p class="error" *ngIf="error">{{ error }}</p>
+
+<form (ngSubmit)="save()" class="form">
+  <label *ngFor="let f of entity.fields">{{ f.label }}
+    <input [type]="f.type" [(ngModel)]="form[f.name]" [ngModelOptions]="{standalone: true}" required />
+  </label>
+  <label *ngIf="entity.rel">{{ $any(entity.rel).label }}
+    <select [(ngModel)]="form[$any(entity.rel).field]" [ngModelOptions]="{standalone: true}" required>
+      <option *ngFor="let o of options" [ngValue]="o.id">{{ o.id }} - {{ o[$any(entity.rel).display] }}</option>
+    </select>
+  </label>
+  <button type="submit">{{ editId ? 'Modifier' : 'Ajouter' }}</button>
+  <button type="button" *ngIf="editId" (click)="reset()">Annuler</button>
+</form>
+
+<table>
+  <tr>
+    <th>id</th><th *ngFor="let f of entity.fields">{{ f.label }}</th>
+    <th *ngIf="entity.rel">{{ $any(entity.rel).label }}</th><th></th>
+  </tr>
+  <tr *ngFor="let it of items">
+    <td>{{ it.id }}</td>
+    <td *ngFor="let f of entity.fields">{{ it[f.name] }}</td>
+    <td *ngIf="entity.rel">{{ relLabel(it) }}</td>
+    <td>
+      <button (click)="edit(it)">Edit</button>
+      <button (click)="remove(it.id)">Delete</button>
+    </td>
+  </tr>
+</table>
