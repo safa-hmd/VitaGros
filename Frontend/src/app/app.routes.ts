@@ -34,6 +34,13 @@ export const routes: Routes = [
           import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
 
+      // Recommandations IA (microservice Python, port 5000)
+      {
+        path: 'recommendations',
+        loadComponent: () =>
+          import('./components/recommendations/recommendations.component').then(m => m.RecommendationsComponent)
+      },
+
       // Profile
       {
         path: 'profile',

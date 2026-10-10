@@ -12,6 +12,11 @@
       <span>🏠</span> Dashboard
     </a>
 
+    <a routerLink="/recommendations" routerLinkActive="nav-active"
+       class="nav-item" (click)="menuOpen.set(false)">
+      <span>🤖</span> Recommandations
+    </a>
+
     <!-- Products dropdown -->
     <div class="nav-dropdown" [class.open]="openDrop() === 'products'">
       <button class="nav-item nav-dropdown-btn" (click)="toggleDrop('products')">
