@@ -1,5 +1,6 @@
 package esprit.gateway;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -14,33 +15,34 @@ public class GatewayApplication {
     public static void main(String[] args) {
         SpringApplication.run(GatewayApplication.class, args);
     }
+
+    // URL du microservice Python (non enregistré dans Eureka)
+    @Value("${recommandation.url:http://localhost:5000}")
+    private String recommandationUrl;
+
     @Bean
-    public RouteLocator gatewayRoutes(RouteLocatorBuilder builder){
+    public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
+        return builder.routes()
 
-       // return builder.routes() .route("candidat",r->r.path("/mic1/**")
-                   //     .uri("http://localhost:8081") )
-                //.route("candidat",r->r.path("/mic1/**")
-                   //     .uri("http://localhost:8090") )
-              //  .route("job",r->r.path("/mic2/**")
-                   //     .uri("http://localhost:8082") )
-               // .route("candidature",r->r.path("/mic3/**")
-                 //       .uri("http://localhost:8083") )
-              //  .route("meeting",r->r.path("/mic5/**")
-                   //     .uri("http://localhost:8085") )
-              //  .build();
-        //
-        return builder.routes() .route("candidat",r->r.path("/mic1/**")
-                   .uri("lb://CANDIDAT") )
+                // ===== Nouveaux microservices (Eureka) =====
+                .route("user", r -> r.path("/api/users/**", "/api/roles/**")
+                        .uri("lb://USER"))
+                .route("produit", r -> r.path("/api/products/**", "/api/categories/**")
+                        .uri("lb://PRODUIT"))
+                .route("commande", r -> r.path("/api/orders/**", "/api/order-lines/**")
+                        .uri("lb://COMMANDE"))
+                .route("paiement", r -> r.path("/api/payments/**", "/api/invoices/**")
+                        .uri("lb://PAIEMENT"))
+                .route("livraison", r -> r.path("/api/carriers/**", "/api/deliveries/**")
+                        .uri("lb://LIVRAISON"))
 
-                .route("job",r->r.path("/mic2/**")
-                        .uri("lb://JOB") )
-                .route("candidature",r->r.path("/mic3/**")
-                        .uri("lb://CANDIDATURE") )
-                .route("notification",r->r.path("/mic4/" +
-                                "**")
-                        .uri("lb://NOTIFICATION") )
-                .route("meeting",r->r.path("/mic5/**")
-                        .uri("lb://MEETING") )
+                // ===== Recommandation (Python / FastAPI) =====
+                .route("recommandation", r -> r.path("/api/recommendations/**")
+                        .filters(f -> f.dedupeResponseHeader(
+                                "Access-Control-Allow-Origin Access-Control-Allow-Credentials",
+                                "RETAIN_FIRST"))
+                        .uri(recommandationUrl))
+
                 .build();
-         }
+    }
 }
