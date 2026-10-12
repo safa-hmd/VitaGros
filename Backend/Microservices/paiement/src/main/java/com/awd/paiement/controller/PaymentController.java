@@ -1,5 +1,6 @@
 package com.awd.paiement.controller;
 
+import com.awd.paiement.dto.PayRequest;
 import com.awd.paiement.entity.Payment;
 import com.awd.paiement.service.PaymentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,4 +44,25 @@ public class PaymentController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+    @PostMapping("/pay")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Payment pay(@Valid @RequestBody PayRequest body) {
+        return service.pay(body);
+    }
+
+    @GetMapping("/by-order/{orderId}")
+    public List<Payment> byOrder(@PathVariable Long orderId) {
+        return service.findByOrder(orderId);
+    }
+
+    @GetMapping("/by-user/{userId}")
+    public List<Payment> byUser(@PathVariable Long userId) {
+        return service.findByUser(userId);
+    }
+
+
+
+
 }
+
+
