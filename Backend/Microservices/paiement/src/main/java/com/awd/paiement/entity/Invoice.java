@@ -16,9 +16,23 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private Long orderId;
 
+    private Long userId;
+
+    @NotNull
+    @Positive
     private Double amount;
 
     private LocalDate issueDate;
+
+    @Enumerated(EnumType.STRING)
+    private InvoiceStatus status = InvoiceStatus.UNPAID;
+
+    @PrePersist
+    void onCreate() {
+        if (issueDate == null) issueDate = LocalDate.now();
+        if (status == null) status = InvoiceStatus.UNPAID;
+    }
 }

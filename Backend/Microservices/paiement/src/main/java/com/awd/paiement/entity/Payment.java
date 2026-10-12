@@ -3,6 +3,7 @@ package com.awd.paiement.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.time.*;
+import java.util.UUID;
 import lombok.*;
 
 @Entity
@@ -19,13 +20,26 @@ public class Payment {
     @NotBlank
     private String method;
 
+    @NotNull
+    @Positive
     private Double amount;
 
     private LocalDateTime paidAt;
 
-    // many-to-one : payment.invoice_id -> invoice.id
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status = PaymentStatus.PENDING;
+
+    private String transactionRef;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "invoice_id")
     @NotNull
     private Invoice invoice;
+
+    @PrePersist
+    void onCreate() {
+        if (paidAt == null) paidAt = LocalDateTime.now();
+        if (status == null) status = PaymentStatus.PENDING;
+        if (transactionRef == null) transactionRef = "TX-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
 }

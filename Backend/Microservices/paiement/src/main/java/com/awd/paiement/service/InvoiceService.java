@@ -38,4 +38,11 @@ public class InvoiceService {
         findById(id);
         repository.deleteById(id);
     }
+    public List<Invoice> findByOrder(Long orderId) {
+        return repository.findByOrderId(orderId);
+    }
+
+    public List<Invoice> findByUser(Long userId) {
+        return repository.findByUserId(userId);
+    }
 }
