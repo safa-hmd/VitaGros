@@ -1,5 +1,6 @@
 package com.awd.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -24,7 +25,12 @@ public class User {
     @NotBlank
     private String email;
 
+    /**
+     * Écriture seule : le mot de passe est accepté en entrée (inscription, modification)
+     * mais n'est JAMAIS renvoyé dans les réponses JSON (liste, détail, login).
+     */
     @NotBlank
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Enumerated(EnumType.STRING)

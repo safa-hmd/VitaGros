@@ -1,133 +1,64 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, map } from 'rxjs';
-import { User, AuthRequest, RegisterRequest, Role } from '../models/user.model';
+import { Observable, tap } from 'rxjs';
+import { AuthRequest, AuthResponse, RegisterRequest, Role, User } from '../models/user.model';
 
-export interface AuthResponse {
-  token: string;
-  user: User;
-}
+const BASE = 'http://localhost:8081/api/auth';
+const STORAGE_KEY = 'vitagros_auth';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly BASE = 'http://localhost:8081/api';
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
-  private _currentUser = signal<User | null>(null);
-  private _token = signal<string | null>(null);
+  private readonly _session = signal<AuthResponse | null>(this.restore());
 
-  currentUser = computed(() => this._currentUser());
-  isLoggedIn = computed(() => !!this._token());
-  isAdmin = computed(() => {
-    const u = this._currentUser();
-    return u?.role === Role.ADMIN || (u?.role as any) === 'ADMIN';
-  });
-  isUser = computed(() => {
-    const u = this._currentUser();
-    return !u?.role || u?.role === Role.USER || (u?.role as any) === 'USER';
-  });
-
-  constructor(private http: HttpClient, private router: Router) {
-    // Restore session from localStorage
-    const stored = localStorage.getItem('auth');
-    if (stored) {
-      try {
-        const data = JSON.parse(stored) as AuthResponse;
-        this._token.set(data.token);
-        this._currentUser.set(data.user);
-      } catch {
-        localStorage.removeItem('auth');
-      }
-    }
-  }
+  readonly currentUser = computed<User | null>(() => this._session()?.user ?? null);
+  readonly isLoggedIn = computed(() => this._session() !== null);
+  readonly isAdmin = computed(() => this.currentUser()?.role === Role.ADMIN);
 
   getToken(): string | null {
-    return this._token();
+    return this._session()?.token ?? null;
   }
 
-  /**
-   * Login – vérifie les identifiants via GET /api/users
-   * expectedRole permet de bloquer l'accès si mauvais rôle
-   */
-  login(credentials: AuthRequest, expectedRole?: Role): Observable<AuthResponse> {
-    return this.http.get<User[]>(`${this.BASE}/users`).pipe(
-      map((users: User[]) => {
-        const user = users.find(
-          (u: User) => u.email?.toLowerCase() === credentials.email?.toLowerCase() && u.password === credentials.password
-        );
-        if (!user) {
-          throw new Error('Email ou mot de passe incorrect.');
-        }
-
-        const roleStr = (user.role || 'USER').toString().toUpperCase();
-        const roleEnum = roleStr === 'ADMIN' ? Role.ADMIN : Role.USER;
-
-        if (expectedRole && roleEnum !== expectedRole) {
-          if (expectedRole === Role.ADMIN) {
-            throw new Error('Accès réservé : ce compte ne possède pas les droits Administrateur.');
-          }
-        }
-
-        const authRes: AuthResponse = {
-          token: 'session-' + btoa(user.email + ':' + Date.now()),
-          user: {
-            ...user,
-            role: roleEnum
-          }
-        };
-        this._saveSession(authRes);
-        return authRes;
-      })
-    );
+  /** Page d'accueil selon le rôle */
+  homeUrl(): string {
+    return this.isAdmin() ? '/admin' : '/shop';
   }
 
-  /**
-   * Register – crée l'utilisateur avec rôle (défaut USER)
-   */
-  register(payload: RegisterRequest): Observable<AuthResponse> {
-    const userPayload: User = {
-      firstname: payload.firstname,
-      lastname: payload.lastname,
-      email: payload.email,
-      password: payload.password,
-      role: payload.role || Role.USER
-    };
-
-    return this.http.post<User>(`${this.BASE}/users`, userPayload).pipe(
-      map((user: User) => {
-        const authRes: AuthResponse = {
-          token: 'session-' + btoa(user.email + ':' + Date.now()),
-          user: {
-            ...user,
-            role: user.role === Role.ADMIN ? Role.ADMIN : Role.USER
-          }
-        };
-        this._saveSession(authRes);
-        return authRes;
-      })
-    );
+  login(req: AuthRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${BASE}/login`, req).pipe(tap(res => this.save(res)));
   }
 
+  register(req: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${BASE}/register`, req).pipe(tap(res => this.save(res)));
+  }
+
+  /** Met à jour l'utilisateur en session (après modification du profil) */
   updateCurrentUser(user: User): void {
-    this._currentUser.set(user);
-    const stored = localStorage.getItem('auth');
-    if (stored) {
-      const data = JSON.parse(stored);
-      data.user = user;
-      localStorage.setItem('auth', JSON.stringify(data));
-    }
+    const s = this._session();
+    if (s) this.save({ token: s.token, user });
   }
 
   logout(): void {
-    this._token.set(null);
-    this._currentUser.set(null);
-    localStorage.removeItem('auth');
-    this.router.navigate(['/auth/login']);
+    const target = this.isAdmin() ? '/auth/admin-login' : '/auth/login';
+    this._session.set(null);
+    localStorage.removeItem(STORAGE_KEY);
+    this.router.navigate([target]);
   }
 
-  private _saveSession(res: AuthResponse): void {
-    this._token.set(res.token);
-    this._currentUser.set(res.user);
-    localStorage.setItem('auth', JSON.stringify(res));
+  private save(res: AuthResponse): void {
+    this._session.set(res);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(res));
+  }
+
+  private restore(): AuthResponse | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as AuthResponse) : null;
+    } catch {
+      return null;
+    }
   }
 }

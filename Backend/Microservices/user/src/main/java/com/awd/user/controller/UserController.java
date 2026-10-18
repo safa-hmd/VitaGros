@@ -33,8 +33,9 @@ public class UserController {
         return service.create(body);
     }
 
+    /** Pas de @Valid ici : le mot de passe est facultatif lors d'une mise à jour (validé dans le service). */
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @Valid @RequestBody User body) {
+    public User update(@PathVariable Long id, @RequestBody User body) {
         return service.update(id, body);
     }
 

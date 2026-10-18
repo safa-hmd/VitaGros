@@ -3,20 +3,21 @@ export enum Role {
   USER = 'USER'
 }
 
-export type RoleType = Role | 'ADMIN' | 'USER';
-
 export interface User {
   id?: number;
   firstname: string;
   lastname: string;
   email: string;
+  /** Écriture seule : le backend ne renvoie jamais le mot de passe. */
   password?: string;
-  role?: RoleType;
+  role: Role;
 }
 
 export interface AuthRequest {
   email: string;
   password: string;
+  /** Espace demandé : le backend refuse un USER qui tente l'espace ADMIN */
+  portal: Role;
 }
 
 export interface RegisterRequest {
@@ -24,7 +25,6 @@ export interface RegisterRequest {
   lastname: string;
   email: string;
   password: string;
-  role?: RoleType;
 }
 
 export interface AuthResponse {

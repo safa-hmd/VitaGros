@@ -1,118 +1,71 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
+import { guestGuard, roleGuard } from './core/guards/auth.guard';
+import { Role } from './models/user.model';
 
+/**
+ * Toutes les pages sont chargées à la demande (lazy loading).
+ * "ng serve -o" ouvre /  ->  /auth/login (ou l'espace de l'utilisateur déjà connecté).
+ */
 export const routes: Routes = [
-  // Auth routes (public)
+  { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
+
+  // ---------- Authentification (publique)
   {
     path: 'auth',
     children: [
       {
         path: 'login',
-        loadComponent: () =>
-          import('./components/auth/login/login.component').then(m => m.LoginComponent)
+        canActivate: [guestGuard],
+        data: { portal: Role.USER },
+        loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent)
+      },
+      {
+        path: 'admin-login',
+        canActivate: [guestGuard],
+        data: { portal: Role.ADMIN },
+        loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent)
       },
       {
         path: 'register',
-        loadComponent: () =>
-          import('./components/auth/register/register.component').then(m => m.RegisterComponent)
+        canActivate: [guestGuard],
+        loadComponent: () => import('./features/auth/register.component').then(m => m.RegisterComponent)
       },
-      { path: '', redirectTo: 'login', pathMatch: 'full' }
+      { path: '', pathMatch: 'full', redirectTo: 'login' }
     ]
   },
 
-  // Protected routes (with layout shell)
+  // ---------- Espace client (front-office)
   {
-    path: '',
-    loadComponent: () =>
-      import('./components/layout/layout.component').then(m => m.LayoutComponent),
-    canActivate: [authGuard],
+    path: 'shop',
+    canActivate: [roleGuard(Role.USER)],
+    loadComponent: () => import('./layouts/front-layout.component').then(m => m.FrontLayoutComponent),
     children: [
-      // Dashboard
-      {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
-
-      // Recommandations IA (microservice Python, port 5000)
-      {
-        path: 'recommendations',
-        loadComponent: () =>
-          import('./components/recommendations/recommendations.component').then(m => m.RecommendationsComponent)
-      },
-
-      // Profile
-      {
-        path: 'profile',
-        loadComponent: () =>
-          import('./components/profile/profile.component').then(m => m.ProfileComponent)
-      },
-
-      // Products & Categories (port 8082)
-      {
-        path: 'products',
-        loadComponent: () =>
-          import('./components/products/products.component').then(m => m.ProductsComponent)
-      },
-      {
-        path: 'categories',
-        loadComponent: () =>
-          import('./components/products/categories.component').then(m => m.CategoriesComponent)
-      },
-
-      // Orders & Order Lines (port 8083)
-      {
-        path: 'orders',
-        loadComponent: () =>
-          import('./components/orders/orders.component').then(m => m.OrdersComponent)
-      },
-      {
-        path: 'order-lines',
-        loadComponent: () =>
-          import('./components/orders/order-lines.component').then(m => m.OrderLinesComponent)
-      },
-
-      // Payments & Invoices (port 8084)
-      {
-        path: 'invoices',
-        loadComponent: () =>
-          import('./components/payments/invoices.component').then(m => m.InvoicesComponent)
-      },
-      {
-        path: 'payments',
-        loadComponent: () =>
-          import('./components/payments/payments.component').then(m => m.PaymentsComponent)
-      },
-
-      // Deliveries & Carriers (port 8085)
-      {
-        path: 'deliveries',
-        loadComponent: () =>
-          import('./components/deliveries/deliveries.component').then(m => m.DeliveriesComponent)
-      },
-      {
-        path: 'carriers',
-        loadComponent: () =>
-          import('./components/deliveries/carriers.component').then(m => m.CarriersComponent)
-      },
-
-      // Users & Roles (port 8081)
-      {
-        path: 'users',
-        loadComponent: () =>
-          import('./components/users/users.component').then(m => m.UsersComponent)
-      },
-      {
-        path: 'roles',
-        loadComponent: () =>
-          import('./components/users/roles.component').then(m => m.RolesComponent)
-      },
-
-      // Default redirect to dashboard
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      { path: '', pathMatch: 'full', loadComponent: () => import('./features/front/home.component').then(m => m.HomeComponent) },
+      { path: 'recommandations', loadComponent: () => import('./features/front/recommendations.component').then(m => m.RecommendationsComponent) },
+      { path: 'panier', loadComponent: () => import('./features/front/cart.component').then(m => m.CartComponent) },
+      { path: 'commandes', loadComponent: () => import('./features/front/my-orders.component').then(m => m.MyOrdersComponent) },
+      { path: 'profil', loadComponent: () => import('./features/shared/profile.component').then(m => m.ProfileComponent) },
+      { path: '**', redirectTo: '' }
     ]
   },
 
-  // Fallback
+  // ---------- Espace administrateur (back-office)
+  {
+    path: 'admin',
+    canActivate: [roleGuard(Role.ADMIN)],
+    loadComponent: () => import('./layouts/back-layout.component').then(m => m.BackLayoutComponent),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      { path: 'dashboard', loadComponent: () => import('./features/back/dashboard.component').then(m => m.DashboardComponent) },
+      { path: 'produits', loadComponent: () => import('./features/back/products.component').then(m => m.ProductsAdminComponent) },
+      { path: 'categories', loadComponent: () => import('./features/back/categories.component').then(m => m.CategoriesAdminComponent) },
+      { path: 'utilisateurs', loadComponent: () => import('./features/back/users.component').then(m => m.UsersAdminComponent) },
+      { path: 'commandes', loadComponent: () => import('./features/back/orders.component').then(m => m.OrdersAdminComponent) },
+      { path: 'livreurs', loadComponent: () => import('./features/back/carriers.component').then(m => m.CarriersAdminComponent) },
+      { path: 'profil', loadComponent: () => import('./features/shared/profile.component').then(m => m.ProfileComponent) },
+      { path: '**', redirectTo: 'dashboard' }
+    ]
+  },
+
   { path: '**', redirectTo: 'auth/login' }
 ];

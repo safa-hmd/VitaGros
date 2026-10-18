@@ -25,6 +25,8 @@ public class GatewayApplication {
         return builder.routes()
 
                 // ===== Nouveaux microservices (Eureka) =====
+                .route("auth", r -> r.path("/api/auth/**")
+                        .uri("lb://USER"))
                 .route("user", r -> r.path("/api/users/**", "/api/roles/**")
                         .uri("lb://USER"))
                 .route("produit", r -> r.path("/api/products/**", "/api/categories/**")
