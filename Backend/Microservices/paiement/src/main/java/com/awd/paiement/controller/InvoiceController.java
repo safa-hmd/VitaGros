@@ -43,4 +43,16 @@ public class InvoiceController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+    @GetMapping("/by-order/{orderId}")
+    public List<Invoice> byOrder(@PathVariable Long orderId) {
+        return service.findByOrder(orderId);
+    }
+
+    @GetMapping("/by-user/{userId}")
+    public List<Invoice> byUser(@PathVariable Long userId) {
+        return service.findByUser(userId);
+    }
+
+
+
 }
