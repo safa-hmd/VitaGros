@@ -1,5 +1,6 @@
 package com.awd.paiement.service;
 
+import com.awd.paiement.client.OrderClient;
 import com.awd.paiement.dto.PayRequest;
 import com.awd.paiement.entity.*;
 import com.awd.paiement.repository.InvoiceRepository;
@@ -19,6 +20,8 @@ public class PaymentService {
 
     private final PaymentRepository repository;
     private final InvoiceRepository invoiceRepository;
+
+    private final OrderClient orders;
 
     public List<Payment> findAll() {
         return repository.findAll();
@@ -63,6 +66,8 @@ public class PaymentService {
 
     @Transactional
     public Payment pay(PayRequest r) {
+        orders.get(r.orderId());
+
         if (invoiceRepository.existsByOrderIdAndStatus(r.orderId(), InvoiceStatus.PAID))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Order already paid");
 
@@ -76,7 +81,9 @@ public class PaymentService {
         p.setMethod(r.method());
         p.setAmount(r.amount());
         p.setInvoice(inv);
-        return create(p);
+        Payment saved = create(p);
+        orders.markPaid(r.orderId());
+        return saved;
     }
 
     public List<Payment> findByOrder(Long orderId) {
