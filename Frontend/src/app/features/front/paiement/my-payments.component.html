@@ -1,0 +1,31 @@
+<div class="page-head">
+  <h1>💳 Mes paiements et factures</h1>
+</div>
+
+@if (payments().length === 0) {
+  <div class="empty card">
+    <p>Aucun paiement pour le moment.</p>
+    <a routerLink="/shop" class="btn btn-primary">Commencer mes achats</a>
+  </div>
+} @else {
+  <div class="card table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Facture</th><th>Commande</th><th>Méthode</th><th>Montant</th><th>Statut</th><th>Référence</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        @for (p of payments(); track p.id) {
+          <tr>
+            <td>#{{ p.invoice.id }}</td>
+            <td>#{{ p.invoice.orderId }}</td>
+            <td>{{ methodLabel(p) }}</td>
+            <td>{{ p.amount | number: '1.2-2' }} TND</td>
+            <td><span class="badge">{{ p.status }}</span></td>
+            <td>{{ p.transactionRef }}</td>
+            <td>{{ p.paidAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

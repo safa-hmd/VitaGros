@@ -15,6 +15,7 @@ import { CartService } from '../services/cart.service';
         <a routerLink="/shop" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active">Accueil</a>
         <a routerLink="/shop/recommandations" routerLinkActive="active">🤖 Recommandations IA</a>
         <a routerLink="/shop/commandes" routerLinkActive="active">📦 Mes commandes</a>
+        <a routerLink="/shop/paiements" routerLinkActive="active">💳 Mes paiements</a>
         <a routerLink="/shop/panier" routerLinkActive="active" class="cart-link">
           🛒 Panier
           @if (cart.totalCount() > 0) {

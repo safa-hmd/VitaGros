@@ -45,6 +45,7 @@ export const routes: Routes = [
       { path: 'panier', loadComponent: () => import('./features/front/cart.component').then(m => m.CartComponent) },
       { path: 'commandes', loadComponent: () => import('./features/front/my-orders.component').then(m => m.MyOrdersComponent) },
       { path: 'profil', loadComponent: () => import('./features/shared/profile.component').then(m => m.ProfileComponent) },
+      { path: 'paiements', loadComponent: () => import('./features/front/paiement/my-payments.component').then(m => m.MyPaymentsComponent) },
       { path: '**', redirectTo: '' }
     ]
   },
