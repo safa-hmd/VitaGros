@@ -63,8 +63,9 @@ export const routes: Routes = [
       { path: 'commandes', loadComponent: () => import('./features/back/orders.component').then(m => m.OrdersAdminComponent) },
       { path: 'livreurs', loadComponent: () => import('./features/back/carriers.component').then(m => m.CarriersAdminComponent) },
       { path: 'profil', loadComponent: () => import('./features/shared/profile.component').then(m => m.ProfileComponent) },
-      { path: '**', redirectTo: 'dashboard' }
-    ]
+      { path: 'paiements', loadComponent: () => import('./features/back/paiement/payments.component').then(m => m.PaymentsAdminComponent) },   
+      { path: '**', redirectTo: 'dashboard' },
+ ]
   },
 
   { path: '**', redirectTo: 'auth/login' }

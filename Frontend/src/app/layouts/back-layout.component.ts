@@ -17,6 +17,7 @@ import { AccountMenuComponent } from '../shared/account-menu.component';
           <a routerLink="/admin/categories" routerLinkActive="active">🏷️ Catégories</a>
           <a routerLink="/admin/utilisateurs" routerLinkActive="active">👥 Utilisateurs</a>
           <a routerLink="/admin/commandes" routerLinkActive="active">🧾 Commandes</a>
+          <a routerLink="/admin/paiements" routerLinkActive="active">💳 Paiements</a>
           <a routerLink="/admin/livreurs" routerLinkActive="active">🚚 Livreurs</a>
         </nav>
       </aside>

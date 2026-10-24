@@ -1,0 +1,53 @@
+<div class="page-head">
+  <h1>💳 Paiements</h1>
+</div>
+
+<div class="card table-wrap">
+  <table class="table">
+    <thead>
+      <tr><th>#</th><th>Commande</th><th>Client</th><th>Méthode</th><th>Montant</th><th>Statut</th><th>Référence</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+      @for (p of payments(); track p.id) {
+        <tr>
+          <td>{{ p.id }}</td>
+          <td>#{{ p.invoice.orderId }}</td>
+          <td>{{ p.invoice.userId ?? '-' }}</td>
+          <td>{{ p.method }}</td>
+          <td>{{ p.amount | number: '1.2-2' }} TND</td>
+          <td><span class="badge">{{ p.status }}</span></td>
+          <td>{{ p.transactionRef }}</td>
+          <td>{{ p.paidAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="8" class="muted center">Aucun paiement.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="page-head" style="margin-top: 32px">
+  <h1>🧾 Factures</h1>
+</div>
+
+<div class="card table-wrap">
+  <table class="table">
+    <thead>
+      <tr><th>#</th><th>Commande</th><th>Client</th><th>Montant</th><th>Statut</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+      @for (i of invoices(); track i.id) {
+        <tr>
+          <td>{{ i.id }}</td>
+          <td>#{{ i.orderId }}</td>
+          <td>{{ i.userId ?? '-' }}</td>
+          <td>{{ i.amount | number: '1.2-2' }} TND</td>
+          <td><span class="badge">{{ i.status }}</span></td>
+          <td>{{ i.issueDate | date: 'dd/MM/yyyy' }}</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6" class="muted center">Aucune facture.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>
