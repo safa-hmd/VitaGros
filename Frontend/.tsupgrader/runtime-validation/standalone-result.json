@@ -1,0 +1,119 @@
+{
+  "planHash": "d47559c5fdeb6be77579a6e9e7130f133689c7c5926537169c63b88d473aecf3",
+  "phase": "standalone",
+  "recordedAtUtc": "2026-10-25T16:11:03.7337332Z",
+  "retryCount": 2,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": true,
+    "setupDurationMs": 41278,
+    "setupFailureOutput": null,
+    "assertions": [
+      {
+        "name": "production-build",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E frontend@0.0.0 build\r\n\u003E ng build\r\n\r\n\u001B[33m\u003E\u001B[39m Building...\r\n\u001B[32m\u221A\u001B[39m Building...\r\n\u001B[1mInitial chunk files\u001B[22m  \u001B[2m | \u001B[22m\u001B[1mNames\u001B[22m                    \u001B[2m | \u001B[22m \u001B[1mRaw size\u001B[22m\u001B[2m | \u001B[22m\u001B[1mEstimated transfer size\u001B[22m\r\n\u001B[32mchunk-CDPCXMXX.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m\u001B[36m174.76 kB\u001B[39m\u001B[2m | \u001B[22m               \u001B[36m50.82 kB\u001B[39m\r\n\u001B[32mchunk-RJ3WX5PK.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m \u001B[36m82.78 kB\u001B[39m\u001B[2m | \u001B[22m               \u001B[36m20.68 kB\u001B[39m\r\n\u001B[32mmain-AGLEHOUT.js\u001B[39m     \u001B[2m | \u001B[22m\u001B[2mmain\u001B[22m                     \u001B[2m | \u001B[22m \u001B[36m66.83 kB\u001B[39m\u001B[2m | \u001B[22m               \u001B[36m17.70 kB\u001B[39m\r\n\u001B[32mpolyfills-FFHMD2TL.js\u001B[39m\u001B[2m | \u001B[22m\u001B[2mpolyfills\u001B[22m                \u001B[2m | \u001B[22m \u001B[36m34.52 kB\u001B[39m\u001B[2m | \u001B[22m               \u001B[36m11.28 kB\u001B[39m\r\n\u001B[32mstyles-KAXE3IE5.css\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mstyles\u001B[22m                   \u001B[2m | \u001B[22m \u001B[36m13.14 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m2.90 kB\u001B[39m\r\n\u001B[32mchunk-3WZHGXTW.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m  \u001B[36m1.13 kB\u001B[39m\u001B[2m | \u001B[22m              \u001B[36m516 bytes\u001B[39m\r\n\u001B[32mchunk-74U6X4LW.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m\u001B[36m393 bytes\u001B[39m\u001B[2m | \u001B[22m              \u001B[36m393 bytes\u001B[39m\r\n\r\n\u001B[1m \u001B[22m                    \u001B[2m | \u001B[22m\u001B[1mInitial total\u001B[22m            \u001B[2m | \u001B[22m\u001B[1m373.55 kB\u001B[22m\u001B[2m | \u001B[22m              \u001B[1m104.28 kB\u001B[22m\r\n\r\n\u001B[1mLazy chunk files\u001B[22m     \u001B[2m | \u001B[22m\u001B[1mNames\u001B[22m                    \u001B[2m | \u001B[22m \u001B[1mRaw size\u001B[22m\u001B[2m | \u001B[22m\u001B[1mEstimated transfer size\u001B[22m\r\n\u001B[32mchunk-6AZCELL3.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m \u001B[36m38.61 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m7.83 kB\u001B[39m\r\n\u001B[32mchunk-5CYLNKE2.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2morders-component\u001B[22m         \u001B[2m | \u001B[22m \u001B[36m24.48 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m6.65 kB\u001B[39m\r\n\u001B[32mchunk-2F426S6O.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mcart-component\u001B[22m           \u001B[2m | \u001B[22m \u001B[36m10.22 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m3.48 kB\u001B[39m\r\n\u001B[32mchunk-N7BPT32A.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mrecommendations-component\u001B[22m\u001B[2m | \u001B[22m  \u001B[36m9.71 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m3.33 kB\u001B[39m\r\n\u001B[32mchunk-DI6V6OKB.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mproducts-component\u001B[22m       \u001B[2m | \u001B[22m  \u001B[36m6.54 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m2.30 kB\u001B[39m\r\n\u001B[32mchunk-H44UEKKB.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mhome-component\u001B[22m           \u001B[2m | \u001B[22m  \u001B[36m5.48 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m2.16 kB\u001B[39m\r\n\u001B[32mchunk-3J4FZRQO.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mdashboard-component\u001B[22m      \u001B[2m | \u001B[22m  \u001B[36m4.91 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.87 kB\u001B[39m\r\n\u001B[32mchunk-HRANB7BM.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mmy-orders-component\u001B[22m      \u001B[2m | \u001B[22m  \u001B[36m4.81 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.89 kB\u001B[39m\r\n\u001B[32mchunk-FGAHAJJ4.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2musers-component\u001B[22m          \u001B[2m | \u001B[22m  \u001B[36m4.31 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.84 kB\u001B[39m\r\n\u001B[32mchunk-EKQ6VKJG.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mcategories-component\u001B[22m     \u001B[2m | \u001B[22m  \u001B[36m4.25 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.58 kB\u001B[39m\r\n\u001B[32mchunk-3WDXM52T.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mcarriers-component\u001B[22m       \u001B[2m | \u001B[22m  \u001B[36m4.14 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.56 kB\u001B[39m\r\n\u001B[32mchunk-5JDPANZ4.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mprofile-component\u001B[22m        \u001B[2m | \u001B[22m  \u001B[36m3.98 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.50 kB\u001B[39m\r\n\u001B[32mchunk-CTXMLKXY.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mregister-component\u001B[22m       \u001B[2m | \u001B[22m  \u001B[36m3.68 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.39 kB\u001B[39m\r\n\u001B[32mchunk-4OHKZDKR.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mpayments-component\u001B[22m       \u001B[2m | \u001B[22m  \u001B[36m2.96 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.11 kB\u001B[39m\r\n\u001B[32mchunk-C6Q45NOV.js\u001B[39m    \u001B[2m | \u001B[22m\u001B[2mlogin-component\u001B[22m          \u001B[2m | \u001B[22m  \u001B[36m2.86 kB\u001B[39m\u001B[2m | \u001B[22m                \u001B[36m1.21 kB\u001B[39m\r\n\u001B[2m...and 15 more lazy chunks files. Use \u0022--verbose\u0022 to show all the files.\u001B[22m\r\n\r\nApplication bundle generation complete. [3.019 seco\n\u2026[truncated]",
+        "durationMs": 4454
+      },
+      {
+        "name": "tests-pass",
+        "kind": "process",
+        "verificationMethod": "test-results",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E frontend@0.0.0 test\r\n\u003E ng test --watch=false --browsers=ChromeHeadless\r\n\r\n- Generating browser application bundles (phase: setup)...\r\n\u221A Browser application bundle generation complete.\r\n25 10 2026 17:10:57.587:INFO [karma-server]: Karma v6.4.4 server started at http://localhost:9876/\r\n25 10 2026 17:10:57.589:INFO [launcher]: Launching browsers ChromeHeadless with concurrency unlimited\r\n25 10 2026 17:10:57.593:INFO [launcher]: Starting browser ChromeHeadless\r\n25 10 2026 17:10:58.337:INFO [Edge 156.0.0.0 (Windows 10)]: Connected on socket 1Kb0AwjpT9VMnoN8AAAA with id 67637255\r\nEdge 156.0.0.0 (Windows 10): Executed 0 of 4 SUCCESS (0 secs / 0 secs)\r\n\u001B[1A\u001B[2KEdge 156.0.0.0 (Windows 10): Executed 1 of 4 SUCCESS (0 secs / 0.009 secs)\r\n\u001B[1A\u001B[2KEdge 156.0.0.0 (Windows 10): Executed 2 of 4 SUCCESS (0 secs / 0.012 secs)\r\n\u001B[1A\u001B[2KEdge 156.0.0.0 (Windows 10): Executed 3 of 4 SUCCESS (0 secs / 0.013 secs)\r\n\u001B[1A\u001B[2KEdge 156.0.0.0 (Windows 10): Executed 4 of 4 SUCCESS (0 secs / 0.014 secs)\r\n\u001B[1A\u001B[2KEdge 156.0.0.0 (Windows 10): Executed 4 of 4 SUCCESS (0.022 secs / 0.014 secs)\r\nTOTAL: 4 SUCCESS\r\n\u221A Browser application bundle generation complete.\r\n\u221A Browser application bundle generation complete.\r\n",
+        "durationMs": 5862,
+        "testResults": {
+          "testFramework": "jasmine",
+          "runnerDetectedFrom": "package_json",
+          "testsTotal": 0,
+          "testsPassed": 0,
+          "testsFailed": 0,
+          "testsSkipped": 0,
+          "parseFailed": true
+        }
+      },
+      {
+        "name": "admin-orders-route-serves",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\n\u003Chtml lang=\u0022fr\u0022\u003E\n\u003Chead\u003E\n  \u003Cscript type=\u0022module\u0022 src=\u0022/@vite/client\u0022\u003E\u003C/script\u003E\n\n  \u003Cmeta charset=\u0022utf-8\u0022\u003E\n  \u003Ctitle\u003EShopMicro \u2014 Gestion E-Commerce\u003C/title\u003E\n  \u003Cbase href=\u0022/\u0022\u003E\n  \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1\u0022\u003E\n  \u003Cmeta name=\u0022description\u0022 content=\u0022ShopMicro \u2014 Tableau de bord de gestion e-commerce microservices : produits, commandes, paiements, livraisons.\u0022\u003E\n  \u003Cmeta name=\u0022theme-color\u0022 content=\u0022#0f172a\u0022\u003E\n  \u003Clink rel=\u0022icon\u0022 type=\u0022image/x-icon\u0022 href=\u0022favicon.ico\u0022\u003E\n  \u003Clink rel=\u0022preconnect\u0022 href=\u0022https://fonts.googleapis.com\u0022\u003E\n  \u003Clink rel=\u0022preconnect\u0022 href=\u0022https://fonts.gstatic.com\u0022 crossorigin=\u0022\u0022\u003E\n  \u003Clink rel=\u0022stylesheet\u0022 href=\u0022https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800\u0026amp;display=swap\u0022\u003E\n\u003Clink rel=\u0022stylesheet\u0022 href=\u0022styles.css\u0022\u003E\u003C/head\u003E\n\u003Cbody\u003E\n  \u003Capp-root\u003E\u003C/app-root\u003E\n\u003Cscript src=\u0022polyfills.js\u0022 type=\u0022module\u0022\u003E\u003C/script\u003E\u003Cscript src=\u0022main.js\u0022 type=\u0022module\u0022\u003E\u003C/script\u003E\u003C/body\u003E\n\u003C/html\u003E\n\n--- server output ---\n\r\n\u003E frontend@0.0.0 start\r\n\u003E ng serve --port 4201 --host localhost\r\n\r\n\u001B[33m\u003E\u001B[39m Building...\r\n\u001B[32m\u221A\u001B[39m Building...\r\n\u001B[1mInitial chunk files\u001B[22m\u001B[2m | \u001B[22m\u001B[1mNames\u001B[22m                    \u001B[2m | \u001B[22m \u001B[1mRaw size\u001B[22m\r\n\u001B[32mpolyfills.js\u001B[39m       \u001B[2m | \u001B[22m\u001B[2mpolyfills\u001B[22m                \u001B[2m | \u001B[22m \u001B[36m90.20 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mstyles.css\u001B[39m         \u001B[2m | \u001B[22m\u001B[2mstyles\u001B[22m                   \u001B[2m | \u001B[22m \u001B[36m16.87 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mmain.js\u001B[39m            \u001B[2m | \u001B[22m\u001B[2mmain\u001B[22m                     \u001B[2m | \u001B[22m  \u001B[36m7.89 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-M6T7QACP.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m  \u001B[36m2.21 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-VUJOFXKG.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m\u001B[36m938 bytes\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-5LKN4APX.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2m-\u001B[22m                        \u001B[2m | \u001B[22m\u001B[36m826 bytes\u001B[39m\u001B[2m | \u001B[22m\r\n\r\n\u001B[1m \u001B[22m                  \u001B[2m | \u001B[22m\u001B[1mInitial total\u001B[22m            \u001B[2m | \u001B[22m\u001B[1m118.93 kB\u001B[22m\r\n\r\n\u001B[1mLazy chunk files\u001B[22m   \u001B[2m | \u001B[22m\u001B[1mNames\u001B[22m                    \u001B[2m | \u001B[22m \u001B[1mRaw size\u001B[22m\r\n\u001B[32mchunk-DA4SWNQF.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2morders-component\u001B[22m         \u001B[2m | \u001B[22m \u001B[36m60.01 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-6LSZK3NK.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mcart-component\u001B[22m           \u001B[2m | \u001B[22m \u001B[36m23.70 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-6XVYKEWW.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mrecommendations-component\u001B[22m\u001B[2m | \u001B[22m \u001B[36m22.89 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-VLF4XMB7.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mproducts-component\u001B[22m       \u001B[2m | \u001B[22m \u001B[36m16.26 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-6PY4Y7IX.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mhome-component\u001B[22m           \u001B[2m | \u001B[22m \u001B[36m13.11 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-EQWWUX36.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mdashboard-component\u001B[22m      \u001B[2m | \u001B[22m \u001B[36m12.85 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-D24EE2SF.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mmy-orders-component\u001B[22m      \u001B[2m | \u001B[22m \u001B[36m11.53 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-4Q5EAV5Y.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mcategories-component\u001B[22m     \u001B[2m | \u001B[22m \u001B[36m10.40 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-HF7JN456.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2musers-component\u001B[22m          \u001B[2m | \u001B[22m \u001B[36m10.28 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-ZK3BM6FI.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mcarriers-component\u001B[22m       \u001B[2m | \u001B[22m \u001B[36m10.26 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-B5ZBQEHZ.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mpayments-component\u001B[22m       \u001B[2m | \u001B[22m  \u001B[36m8.81 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-FKE7C3F2.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mprofile-component\u001B[22m        \u001B[2m | \u001B[22m  \u001B[36m8.40 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-TUK4MO3O.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mregister-component\u001B[22m       \u001B[2m | \u001B[22m  \u001B[36m7.99 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-6XVCIZU5.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mlogin-component\u001B[22m          \u001B[2m | \u001B[22m  \u001B[36m6.45 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[32mchunk-CFFAP3PO.js\u001B[39m  \u001B[2m | \u001B[22m\u001B[2mmy-payments-component\u001B[22m    \u001B[2m | \u001B[22m  \u001B[36m6.01 kB\u001B[39m\u001B[2m | \u001B[22m\r\n\u001B[2m...and 14 more lazy chunks files. Use \u0022--verbose\u0022 to show all the files.\u001B[22m\r\n\r\nApplication bundle generation complete. [1.939 seconds]\r\n\r\n\n\u2026[truncated]",
+        "durationMs": 4345
+      }
+    ],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "ci"
+        ],
+        "cwd": "C:\\Users\\SBS\\Downloads\\VitaGros-main\\Frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "production-build",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\SBS\\Downloads\\VitaGros-main\\Frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "tests-pass",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "test",
+          "--",
+          "--watch=false",
+          "--browsers=ChromeHeadless"
+        ],
+        "cwd": "C:\\Users\\SBS\\Downloads\\VitaGros-main\\Frontend",
+        "env": {
+          "CHROME_BIN": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "NO_COLOR": "1",
+          "FORCE_COLOR": "0"
+        },
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "admin-orders-route-serves",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "start",
+          "--",
+          "--port",
+          "4201",
+          "--host",
+          "localhost"
+        ],
+        "cwd": "C:\\Users\\SBS\\Downloads\\VitaGros-main\\Frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      }
+    ]
+  }
+}
