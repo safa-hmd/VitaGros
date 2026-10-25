@@ -39,6 +39,8 @@ Errors: 400 validation, 404 not found, 409 integrity violation (duplicate / stil
 | recommandation → commande | | `GET /api/order-lines` | Read purchase history |
 | frontend → commande | | `/api/orders`, `/api/order-lines` | The Angular checkout and order screens use these endpoints |
 
+Use Admin → Commandes in the Angular frontend to test the Commande API.
+
 Services are addressed by their Eureka name (`http://user`, `http://produit`) with a load-balanced `RestClient` (3 s connect / 5 s read timeout). Produit has no dedicated stock endpoint, so Commande reads the product and writes it back with the new stock (read-modify-write, serialized inside one commande instance only). There is no distributed transaction: stock is removed first (checked before writing, 409 if insufficient), the line is saved, and the stock is given back if the save fails. If giving stock back fails (e.g. produit down), a warning is logged and the stock must be corrected manually.
 
 Commande does not call paiement, livraison, or recommandation. Its `PUT /api/orders/{id}` is part of the general order CRUD API, not a call made by Commande to another service.
