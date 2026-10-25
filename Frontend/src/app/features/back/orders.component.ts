@@ -179,9 +179,18 @@ export class OrdersAdminComponent implements OnInit {
 
   toggleBackendTester(): void {
     this.showBackendTester.update(show => !show);
+    if (!this.showBackendTester()) {
+      this.loadCarriers();
+    }
   }
 
   ngOnInit(): void {
+    if (!this.showBackendTester()) {
+      this.loadCarriers();
+    }
+  }
+
+  private loadCarriers(): void {
     this.carrierApi.getAll().pipe(catchError(() => of([] as Carrier[]))).subscribe(list => this.carriers.set(list));
   }
 
