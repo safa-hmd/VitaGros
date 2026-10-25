@@ -1,10 +1,10 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { OrderStoreService } from '../../services/order-store.service';
+import { CommandeApiService, CommandeOrder, CommandeOrderLine } from '../../services/commande-api.service';
 import { ToastService } from '../../services/toast.service';
-import { METHOD_LABELS, ORDER_STEPS, Order, STATUS_LABELS } from '../../models/order.model';
+import { errorMessage } from '../../core/http-error';
 
 @Component({
   selector: 'app-my-orders',
@@ -13,100 +13,140 @@ import { METHOD_LABELS, ORDER_STEPS, Order, STATUS_LABELS } from '../../models/o
   template: `
     <div class="page-head">
       <h1>📦 Mes commandes</h1>
-      <p class="muted">Suivez l'avancement de vos livraisons en temps réel.</p>
+      <p class="muted">Commandes enregistrées par le service Commande.</p>
+      <button class="btn btn-ghost" type="button" (click)="reload()" [disabled]="loading()">
+        {{ loading() ? 'Chargement…' : '↻ Actualiser' }}
+      </button>
     </div>
 
-    @if (orders().length === 0) {
-      <div class="empty card">
-        <p>Vous n'avez pas encore de commande.</p>
-        <a routerLink="/shop" class="btn btn-primary">Commencer mes achats</a>
+    @if (error()) {
+      <div class="alert error" role="alert">
+        {{ error() }}
+        <button class="btn btn-ghost btn-sm" type="button" (click)="reload()">Réessayer</button>
       </div>
     }
 
-    <div class="stack">
-      @for (o of orders(); track o.id) {
-        <article class="card order-card">
-          <div class="order-head">
-            <div>
-              <strong>Commande #{{ o.id }}</strong>
-              <div class="muted small">{{ o.createdAt | date: 'dd/MM/yyyy HH:mm' }} · Facture {{ o.invoice.number }}</div>
+    @if (loading() && orders().length === 0) {
+      <div class="empty card">Chargement de vos commandes…</div>
+    } @else if (orders().length === 0 && !error()) {
+      <div class="empty card">
+        <p>Vous n'avez pas encore de commande enregistrée dans le backend.</p>
+        <a routerLink="/shop" class="btn btn-primary">Commencer mes achats</a>
+      </div>
+    } @else {
+      <div class="stack">
+        @for (order of orders(); track order.id) {
+          <article class="card order-card">
+            <div class="order-head">
+              <div>
+                <strong>Commande #{{ order.id }}</strong>
+                <div class="muted small">Créée le {{ order.orderDate | date: 'dd/MM/yyyy' }} · Client #{{ order.userId }}</div>
+              </div>
+              <span class="badge" [class]="'badge ' + order.status">{{ order.status }}</span>
             </div>
-            <span class="badge" [class]="'badge ' + o.status">{{ statusLabel(o) }}</span>
-          </div>
 
-          @if (o.status !== 'ANNULEE') {
-            <div class="stepper">
-              @for (step of steps; track step; let i = $index) {
-                <div class="step" [class.done]="i < stepIndex(o)" [class.current]="i === stepIndex(o)">
-                  <span class="dot">{{ i + 1 }}</span>
-                  <span class="step-label">{{ stepLabel(step) }}</span>
-                </div>
+            <ul class="order-items">
+              @for (line of linesFor(order.id); track line.id) {
+                <li>
+                  {{ line.quantity }} × Produit #{{ line.productId }}
+                  @if (line.unitPrice !== null) {
+                    <span class="muted">({{ line.unitPrice | number: '1.2-2' }} TND / unité)</span>
+                  }
+                </li>
+              } @empty {
+                <li class="muted">Aucun article associé à cette commande.</li>
+              }
+            </ul>
+
+            <div class="order-foot">
+              <span class="muted small">{{ linesFor(order.id).length }} article(s)</span>
+              @if (order.status === 'EN_ATTENTE') {
+                <button class="btn btn-danger btn-sm" type="button" (click)="cancel(order)" [disabled]="savingId() === order.id">
+                  {{ savingId() === order.id ? 'Annulation…' : 'Annuler' }}
+                </button>
               }
             </div>
-          }
-
-          @if (o.carrierName) {
-            <div class="delivery-box">
-              🚚 Livreur : <strong>{{ o.carrierName }}</strong>
-              @if (o.carrierPhone) {
-                · <a [href]="'tel:' + o.carrierPhone">{{ o.carrierPhone }}</a>
-              }
-            </div>
-          }
-
-          <ul class="order-items">
-            @for (it of o.items; track it.productId) {
-              <li>{{ it.quantity }} × {{ it.name }} <span class="muted">({{ it.unitPrice | number: '1.2-2' }} TND)</span></li>
-            }
-          </ul>
-
-          <div class="order-foot">
-            <span class="muted small">
-              {{ methodLabel(o) }} · {{ o.payment.status === 'PAID' ? 'Payé' : 'Paiement en attente' }}
-              · Livraison : {{ o.address }}
-            </span>
-            <div class="order-total">
-              <strong>{{ o.total | number: '1.2-2' }} TND</strong>
-              @if (o.status === 'EN_ATTENTE') {
-                <button class="btn btn-danger btn-sm" (click)="cancel(o)">Annuler</button>
-              }
-            </div>
-          </div>
-        </article>
-      }
-    </div>
+          </article>
+        }
+      </div>
+    }
   `
 })
-export class MyOrdersComponent {
-  private auth = inject(AuthService);
-  private store = inject(OrderStoreService);
-  private toast = inject(ToastService);
+export class MyOrdersComponent implements OnInit {
+  private readonly auth = inject(AuthService);
+  private readonly api = inject(CommandeApiService);
+  private readonly toast = inject(ToastService);
 
-  readonly steps = ORDER_STEPS;
-  readonly orders = computed(() => {
-    const uid = this.auth.currentUser()?.id;
-    return uid ? this.store.forUser(uid) : [];
-  });
+  readonly orders = signal<CommandeOrder[]>([]);
+  readonly orderLines = signal<CommandeOrderLine[]>([]);
+  readonly loading = signal(false);
+  readonly savingId = signal<number | null>(null);
+  readonly error = signal('');
 
-  stepIndex(o: Order): number {
-    return ORDER_STEPS.indexOf(o.status);
+  ngOnInit(): void {
+    this.reload();
   }
 
-  stepLabel(status: string): string {
-    return STATUS_LABELS[status as Order['status']];
+  reload(): void {
+    const userId = this.auth.currentUser()?.id;
+    if (userId === undefined) {
+      this.error.set('Votre session a expiré, reconnectez-vous.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set('');
+    this.api.getOrders().subscribe({
+      next: allOrders => {
+        const userOrders = allOrders.filter(order => order.userId === userId);
+        this.orders.set(userOrders.sort((a, b) => b.id - a.id));
+        this.loadLines();
+      },
+      error: error => {
+        this.loading.set(false);
+        this.error.set(errorMessage(error, 'Impossible de charger vos commandes.'));
+      }
+    });
   }
 
-  statusLabel(o: Order): string {
-    return STATUS_LABELS[o.status];
+  linesFor(orderId: number): CommandeOrderLine[] {
+    return this.orderLines().filter(line => line.customerOrder.id === orderId);
   }
 
-  methodLabel(o: Order): string {
-    return METHOD_LABELS[o.payment.method];
+  cancel(order: CommandeOrder): void {
+    if (!window.confirm(`Annuler la commande #${order.id} ?`)) return;
+    this.savingId.set(order.id);
+    this.error.set('');
+    this.api.updateOrder(order.id, {
+      userId: order.userId,
+      orderDate: order.orderDate,
+      status: 'ANNULEE'
+    }).subscribe({
+      next: () => {
+        this.savingId.set(null);
+        this.toast.show(`Commande #${order.id} annulée.`, 'info');
+        this.reload();
+      },
+      error: error => {
+        this.savingId.set(null);
+        this.error.set(errorMessage(error, 'Impossible d’annuler cette commande.'));
+      }
+    });
   }
 
-  cancel(o: Order): void {
-    if (!confirm(`Annuler la commande #${o.id} ?`)) return;
-    this.store.cancel(o.id);
-    this.toast.show(`Commande #${o.id} annulée.`, 'info');
+  private loadLines(): void {
+    if (this.orders().length === 0) {
+      this.orderLines.set([]);
+      this.loading.set(false);
+      return;
+    }
+    this.api.getOrderLines().subscribe({
+      next: lines => this.orderLines.set(lines),
+      error: error => {
+        this.loading.set(false);
+        this.error.set(errorMessage(error, 'Impossible de charger les articles des commandes.'));
+      },
+      complete: () => this.loading.set(false)
+    });
   }
 }

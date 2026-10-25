@@ -2,21 +2,22 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { catchError, of } from 'rxjs';
-import { CartService } from '../../services/cart.service';
+import { catchError, from, of, throwError } from 'rxjs';
+import { catchError as catchRequestError, concatMap, map, tap, toArray } from 'rxjs/operators';
+import { CartItem, CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
-import { OrderStoreService } from '../../services/order-store.service';
+import { CommandeApiService, CommandeOrder, CommandeOrderLine } from '../../services/commande-api.service';
 import { RecommendationService } from '../../services/recommendation.service';
 import { ToastService } from '../../services/toast.service';
 import { PaymentMethod, METHOD_LABELS } from '../../models/order.model';
 import { RecommendationItem } from '../../models/recommendation.model';
 import { productFromRecommendation } from '../../core/product-utils';
 import { isEmail } from '../../core/validators';
+import { errorMessage } from '../../core/http-error';
 
 /**
- * Panier + passage de commande + paiement.
- * Entièrement côté client : aucun appel aux microservices commande/paiement.
- * La carte bancaire est SIMULÉE : aucun numéro de carte n'est conservé.
+ * The order and order lines are saved through Commande. Payment is still simulated:
+ * no card number is sent to or stored by a service.
  */
 @Component({
   selector: 'app-cart',
@@ -137,7 +138,7 @@ import { isEmail } from '../../core/validators';
 export class CartComponent implements OnInit {
   readonly cart = inject(CartService);
   private auth = inject(AuthService);
-  private store = inject(OrderStoreService);
+  private commande = inject(CommandeApiService);
   private reco = inject(RecommendationService);
   private toast = inject(ToastService);
   private router = inject(Router);
@@ -214,31 +215,66 @@ export class CartComponent implements OnInit {
     if (overStock) {
       return this.fail(`Stock insuffisant pour « ${overStock.product.name} » (${overStock.product.stock} disponible).`);
     }
+    const missingProductId = this.cart.items().find(i => !i.product.id);
+    if (missingProductId) {
+      return this.fail(`Le produit « ${missingProductId.product.name} » n'a pas d'identifiant valide.`);
+    }
 
     this.submitting.set(true);
-    const order = this.store.placeOrder({
+    const items = this.cart.items();
+    this.commande.createOrder({
       userId: user.id,
-      customerName: f.name.trim(),
-      customerEmail: f.email.trim(),
-      address: f.address.trim(),
-      phone: f.phone.trim(),
-      method: f.method,
-      items: this.cart.items().map(i => ({
-        productId: i.product.id ?? 0,
-        name: i.product.name,
-        unitPrice: i.product.price,
-        quantity: i.quantity
-      }))
+      orderDate: null,
+      status: 'EN_ATTENTE'
+    }).pipe(
+      concatMap(order => this.createOrderLines(order, items))
+    ).subscribe({
+      next: order => {
+        this.cart.clearCart();
+        this.submitting.set(false);
+        this.toast.show(`Commande #${order.id} enregistrée dans le backend.`);
+        this.router.navigate(['/shop/commandes']);
+      },
+      error: error => {
+        this.submitting.set(false);
+        this.fail(error instanceof Error && error.name === 'Error'
+          ? error.message
+          : errorMessage(error, 'La commande n’a pas pu être enregistrée.'));
+      }
     });
-
-    this.cart.clearCart();
-    this.submitting.set(false);
-    this.toast.show(`Commande #${order.id} enregistrée ! Facture ${order.invoice.number}.`);
-    this.router.navigate(['/shop/commandes']);
   }
 
   private fail(message: string): void {
     this.error.set(message);
+  }
+
+  private createOrderLines(
+    order: CommandeOrder,
+    items: CartItem[]
+  ) {
+    const createdLines: CommandeOrderLine[] = [];
+    return from(items).pipe(
+      concatMap(item => this.commande.createOrderLine({
+        productId: item.product.id!,
+        quantity: item.quantity,
+        customerOrder: { id: order.id }
+      }).pipe(tap(line => createdLines.push(line)))),
+      toArray(),
+      map(() => order),
+      catchRequestError(requestError => {
+        const rollback = from([...createdLines].reverse()).pipe(
+          concatMap(line => this.commande.deleteOrderLine(line.id)),
+          toArray(),
+          concatMap(() => this.commande.deleteOrder(order.id))
+        );
+        return rollback.pipe(
+          catchRequestError(rollbackError => throwError(() => new Error(
+            `Order #${order.id} was created but checkout failed (${errorMessage(requestError, 'order line failed')}); cleanup also failed (${errorMessage(rollbackError, 'rollback failed')}). Refresh My Orders and inspect the backend before retrying.`
+          ))),
+          concatMap(() => throwError(() => requestError))
+        );
+      })
+    );
   }
 }
 
