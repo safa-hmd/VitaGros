@@ -5,7 +5,7 @@
 <div class="card table-wrap">
   <table class="table">
     <thead>
-      <tr><th>#</th><th>Commande</th><th>Client</th><th>Méthode</th><th>Montant</th><th>Statut</th><th>Référence</th><th>Date</th></tr>
+      <tr><th>#</th><th>Commande</th><th>Client</th><th>Méthode</th><th>Montant</th><th>Statut</th><th>Référence</th><th>Date</th><th>Action</th></tr>
     </thead>
     <tbody>
       @for (p of payments(); track p.id) {
@@ -18,6 +18,7 @@
           <td><span class="badge">{{ p.status }}</span></td>
           <td>{{ p.transactionRef }}</td>
           <td>{{ p.paidAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td><button class="btn btn-danger btn-sm" (click)="removePayment(p)">Supprimer</button></td>
         </tr>
       } @empty {
         <tr><td colspan="8" class="muted center">Aucun paiement.</td></tr>
@@ -33,7 +34,7 @@
 <div class="card table-wrap">
   <table class="table">
     <thead>
-      <tr><th>#</th><th>Commande</th><th>Client</th><th>Montant</th><th>Statut</th><th>Date</th></tr>
+      <tr><th>#</th><th>Commande</th><th>Client</th><th>Montant</th><th>Statut</th><th>Date</th><th>Action</th></tr>
     </thead>
     <tbody>
       @for (i of invoices(); track i.id) {
@@ -44,6 +45,7 @@
           <td>{{ i.amount | number: '1.2-2' }} TND</td>
           <td><span class="badge">{{ i.status }}</span></td>
           <td>{{ i.issueDate | date: 'dd/MM/yyyy' }}</td>
+          <td><button class="btn btn-danger btn-sm" (click)="removeInvoice(i)">Supprimer</button></td>
         </tr>
       } @empty {
         <tr><td colspan="6" class="muted center">Aucune facture.</td></tr>

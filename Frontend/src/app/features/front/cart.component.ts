@@ -14,6 +14,7 @@ import { RecommendationItem } from '../../models/recommendation.model';
 import { productFromRecommendation } from '../../core/product-utils';
 import { isEmail } from '../../core/validators';
 import { errorMessage } from '../../core/http-error';
+import { PaymentService } from '../../services/payment.service';
 
 /**
  * The order and order lines are saved through Commande. Payment is still simulated:
@@ -142,6 +143,7 @@ export class CartComponent implements OnInit {
   private reco = inject(RecommendationService);
   private toast = inject(ToastService);
   private router = inject(Router);
+  private payments = inject(PaymentService);
 
   readonly methods: PaymentMethod[] = ['CARD', 'CASH', 'TRANSFER'];
   readonly methodLabels = METHOD_LABELS;
@@ -220,19 +222,31 @@ export class CartComponent implements OnInit {
       return this.fail(`Le produit « ${missingProductId.product.name} » n'a pas d'identifiant valide.`);
     }
 
-    this.submitting.set(true);
+        this.submitting.set(true);
     const items = this.cart.items();
+    const userId = user.id;
+    const total = this.cart.totalPrice();
     this.commande.createOrder({
-      userId: user.id,
+      userId,
       orderDate: null,
       status: 'EN_ATTENTE'
     }).pipe(
-      concatMap(order => this.createOrderLines(order, items))
+      concatMap(order => this.createOrderLines(order, items)),
+      concatMap(order => f.method !== 'CARD'
+        ? of({ order, paid: null as boolean | null })
+        : this.payments.pay({ orderId: order.id, userId, amount: total, method: 'CARD' }).pipe(
+            map(() => ({ order, paid: true as boolean | null })),
+            catchError(() => of({ order, paid: false as boolean | null }))
+          ))
     ).subscribe({
-      next: order => {
+      next: ({ order, paid }) => {
         this.cart.clearCart();
         this.submitting.set(false);
-        this.toast.show(`Commande #${order.id} enregistrée dans le backend.`);
+        if (paid === false) {
+          this.toast.show(`Commande #${order.id} créée, mais le paiement a échoué. Elle reste en attente.`, 'error');
+        } else {
+          this.toast.show(`Commande #${order.id} enregistrée.`);
+        }
         this.router.navigate(['/shop/commandes']);
       },
       error: error => {

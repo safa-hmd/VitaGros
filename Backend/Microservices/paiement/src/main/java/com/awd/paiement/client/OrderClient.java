@@ -25,7 +25,7 @@ public class OrderClient {
     public void markPaid(Long id) {
         OrderDto o = get(id);
         http.put().uri("/api/orders/{id}", id)
-                .body(new OrderDto(o.id(), o.userId(), o.orderDate(), "PAID"))
+                .body(new OrderDto(o.id(), o.userId(), o.orderDate(), "CONFIRMEE"))
                 .retrieve().toBodilessEntity();
     }
 }

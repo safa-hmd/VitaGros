@@ -2,6 +2,49 @@
   <h1>💳 Mes paiements et factures</h1>
 </div>
 
+@if (toPay().length > 0) {
+  <div class="card stack" style="margin-bottom: 24px">
+    <h3>Commandes à payer</h3>
+    @for (o of toPay(); track o.id) {
+      <div class="cart-line">
+        <div class="grow">
+          <div class="product-name">Commande #{{ o.id }}</div>
+          <div class="muted small">{{ o.lines }}</div>
+        </div>
+        <div class="line-total">{{ o.amount | number: '1.2-2' }} TND</div>
+        <button class="btn btn-primary btn-sm" (click)="choose(o)">Payer par carte</button>
+      </div>
+    }
+  </div>
+}
+
+@if (selected(); as s) {
+  <div class="card stack" style="margin-bottom: 24px">
+    <h3>Payer la commande #{{ s.id }} ({{ s.amount | number: '1.2-2' }} TND)</h3>
+    <label>Numéro de carte
+      <input name="card" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" [(ngModel)]="card.number">
+    </label>
+    <div class="row">
+      <label class="grow">Expiration (MM/AA)
+        <input name="expiry" placeholder="08/29" maxlength="5" [(ngModel)]="card.expiry">
+      </label>
+      <label class="grow">CVC
+        <input name="cvc" inputmode="numeric" maxlength="4" [(ngModel)]="card.cvc">
+      </label>
+    </div>
+    <p class="muted small">Paiement simulé : aucune donnée bancaire n'est enregistrée.</p>
+    @if (error()) {
+      <div class="alert error">{{ error() }}</div>
+    }
+    <div class="actions">
+      <button class="btn btn-ghost" (click)="selected.set(null)">Annuler</button>
+      <button class="btn btn-primary" [disabled]="submitting()" (click)="pay()">
+        {{ submitting() ? 'Traitement…' : 'Payer' }}
+      </button>
+    </div>
+  </div>
+}
+
 @if (payments().length === 0) {
   <div class="empty card">
     <p>Aucun paiement pour le moment.</p>

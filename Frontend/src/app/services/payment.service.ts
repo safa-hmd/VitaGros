@@ -24,4 +24,11 @@ export class PaymentService {
   paymentsByUser(userId: number): Observable<Payment[]> {
     return this.http.get<Payment[]>(`${BASE}/payments/by-user/${userId}`);
   }
+  deletePayment(id: number): Observable<void> {
+  return this.http.delete<void>(`${BASE}/payments/${id}`);
+}
+
+deleteInvoice(id: number): Observable<void> {
+  return this.http.delete<void>(`${BASE}/invoices/${id}`);
+}
 }
