@@ -25,6 +25,9 @@ class Settings:
     )
     # statuts de commande ignores pour les statistiques d'achat
     ignored_order_statuses: tuple[str, ...] = ("CANCELLED", "CANCELED", "ANNULEE", "ANNULÉE")
+    # Eureka
+    eureka_url: str = os.getenv("EUREKA_URL", "http://localhost:8761/eureka/")
+    instance_host: str = os.getenv("INSTANCE_HOST", "localhost")
 
 
 settings = Settings()

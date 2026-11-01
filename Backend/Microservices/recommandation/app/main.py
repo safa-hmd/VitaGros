@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import logging
+import time
+from contextlib import asynccontextmanager
 
+import py_eureka_client.eureka_client as eureka_client
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,12 +15,37 @@ from .engine import CRITERIA, PRESETS, Filters, Recommender
 from .schemas import CartRequest, RecommendationResponse
 
 logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("recommandation")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    base = f"http://{settings.instance_host}:{settings.port}"
+    try:
+        await eureka_client.init_async(
+            eureka_server=settings.eureka_url,
+            app_name="recommandation",
+            instance_host=settings.instance_host,
+            instance_port=settings.port,
+            health_check_url=f"{base}/health",
+            status_page_url=f"{base}/info",
+        )
+        log.info("Enregistré dans Eureka : %s", settings.eureka_url)
+    except Exception as exc:  # Eureka down -> le service démarre quand même
+        log.warning("Eureka injoignable : %s", exc)
+    yield
+    try:
+        await eureka_client.stop_async()
+    except Exception:
+        pass
+
 
 app = FastAPI(
     title="VitaGros - Service de recommandation IA",
     description="Recommandation hybride multi-critères (contenu, filtrage collaboratif, popularité, "
     "catégorie, prix, stock).",
     version="1.0.0",
+    lifespan=lifespan,
 )
 app.add_middleware(
     CORSMiddleware,
@@ -25,6 +53,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+START = time.time()
+hits = {"count": 0}
+
+
+@app.middleware("http")
+async def count_requests(request, call_next):
+    hits["count"] += 1
+    return await call_next(request)
+
 
 provider = DataProvider()
 _model: tuple[int, Recommender] | None = None
@@ -78,6 +116,16 @@ def health():
                 "source": data.source, "products": len(data.products), "order_lines": len(data.order_lines)}
     except Exception as exc:
         return {"status": "DEGRADED", "service": "recommandation", "error": str(exc)}
+
+
+@app.get("/info", tags=["Système"])
+def info():
+    return {"app": {"name": "recommandation", "version": "1.0.0", "framework": "FastAPI"}}
+
+
+@app.get("/metrics", tags=["Système"])
+def metrics():
+    return {"uptime_seconds": round(time.time() - START), "requests_total": hits["count"]}
 
 
 @app.get("/api/recommendations/criteria", tags=["Recommandations"])

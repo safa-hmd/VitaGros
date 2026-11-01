@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { AuthRequest, AuthResponse, RegisterRequest, Role, User } from '../models/user.model';
 
-const BASE = 'http://localhost:8081/api/auth';
+const BASE = 'http://localhost:8089/api/auth';
 const STORAGE_KEY = 'vitagros_auth';
 
 @Injectable({ providedIn: 'root' })

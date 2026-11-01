@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { RecommendationFilters, RecommendationResponse } from '../models/recommendation.model';
 
 // Microservice IA de recommandation (Python / FastAPI)
-const BASE = 'http://localhost:5000/api/recommendations';
+const BASE = 'http://localhost:8089/api/recommendations';
 
 @Injectable({ providedIn: 'root' })
 export class RecommendationService {
