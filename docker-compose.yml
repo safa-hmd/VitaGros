@@ -1,0 +1,16 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.3-management   # "-management" = image avec la console web
+    container_name: vitagros-rabbitmq
+    hostname: vitagros-rabbitmq
+    ports:
+      - "5672:5672"    # protocole AMQP (les microservices)
+      - "15672:15672"  # console web
+    environment:
+      RABBITMQ_DEFAULT_USER: awd
+      RABBITMQ_DEFAULT_PASS: awd
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq-data:
