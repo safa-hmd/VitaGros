@@ -2,7 +2,7 @@ package com.awd.commande.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.MessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.amqp.RabbitTemplateCustomizer;
@@ -26,13 +26,13 @@ public class RabbitConfig {
         return new TopicExchange(EXCHANGE, true, false);
     }
 
-    // Messages en JSON (lisibles par n'importe quel consommateur)
+    // Messages en JSON
     @Bean
     public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
         return new Jackson2JsonMessageConverter(objectMapper);
     }
 
-    // Branche les callbacks de confirmation et de retour sur le RabbitTemplate auto-configuré
+    // Callbacks de confirmation et de retour, branchés sur le RabbitTemplate
     @Bean
     public RabbitTemplateCustomizer rabbitTemplateCustomizer() {
         return template -> {
