@@ -10,6 +10,7 @@ import httpx
 
 from . import demo_data
 from .config import Settings, settings
+from .discovery import resolve_service_url
 
 log = logging.getLogger("recommandation.data")
 
@@ -32,11 +33,15 @@ class DataProvider:
         self.version = 0  # incremente a chaque rechargement (invalide le modele)
 
     def _fetch_live(self) -> Dataset:
+        # Adresses résolues via Eureka (URL de config = plan B si Eureka est éteint)
+        produit_base = resolve_service_url("produit", self.cfg.produit_url)
+        commande_base = resolve_service_url("commande", self.cfg.commande_url)
+
         with httpx.Client(timeout=self.cfg.http_timeout) as client:
-            products = client.get(f"{self.cfg.produit_url}/api/products")
+            products = client.get(f"{produit_base}/api/products")
             products.raise_for_status()
             try:
-                lines = client.get(f"{self.cfg.commande_url}/api/order-lines")
+                lines = client.get(f"{commande_base}/api/order-lines")
                 lines.raise_for_status()
                 order_lines = lines.json()
             except httpx.HTTPError as exc:  # catalogue seul : mode "cold start"
