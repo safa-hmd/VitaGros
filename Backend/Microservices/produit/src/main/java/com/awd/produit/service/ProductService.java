@@ -6,7 +6,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -38,18 +37,5 @@ public class ProductService {
     public void delete(Long id) {
         findById(id);
         repository.deleteById(id);
-    }
-
-    // Appelé par le consumer RabbitMQ
-    @Transactional
-    public Product decreaseStock(Long productId, int quantity) {
-        Product p = findById(productId);
-        int current = p.getStock() == null ? 0 : p.getStock();
-        if (current < quantity) {
-            throw new IllegalStateException(
-                    "Stock insuffisant pour le produit " + productId + " (stock=" + current + ", demandé=" + quantity + ")");
-        }
-        p.setStock(current - quantity);
-        return repository.save(p);
     }
 }
