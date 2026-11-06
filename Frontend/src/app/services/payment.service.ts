@@ -20,6 +20,9 @@ export class PaymentService {
   pay(body: { orderId: number; userId: number; amount: number; method: string }): Observable<Payment> {
     return this.http.post<Payment>(`${BASE}/payments/pay`, body);
   }
+  markPaid(id: number): Observable<Payment> {
+  return this.http.put<Payment>(`${BASE}/payments/${id}/mark-paid`, {});
+}
 
   paymentsByUser(userId: number): Observable<Payment[]> {
     return this.http.get<Payment[]>(`${BASE}/payments/by-user/${userId}`);

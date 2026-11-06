@@ -12,7 +12,7 @@
           <div class="muted small">{{ o.lines }}</div>
         </div>
         <div class="line-total">{{ o.amount | number: '1.2-2' }} TND</div>
-        <button class="btn btn-primary btn-sm" (click)="choose(o)">Payer par carte</button>
+        <button class="btn btn-primary btn-sm" (click)="choose(o)">Payer</button>
       </div>
     }
   </div>
@@ -21,26 +21,47 @@
 @if (selected(); as s) {
   <div class="card stack" style="margin-bottom: 24px">
     <h3>Payer la commande #{{ s.id }} ({{ s.amount | number: '1.2-2' }} TND)</h3>
-    <label>Numéro de carte
-      <input name="card" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" [(ngModel)]="card.number">
-    </label>
-    <div class="row">
-      <label class="grow">Expiration (MM/AA)
-        <input name="expiry" placeholder="08/29" maxlength="5" [(ngModel)]="card.expiry">
+
+    <fieldset class="methods">
+      <legend>Mode de paiement</legend>
+      @for (m of methods; track m) {
+        <label class="check">
+          <input type="radio" name="method" [value]="m" [(ngModel)]="method"> {{ methodLabels[m] }}
+        </label>
+      }
+    </fieldset>
+
+    @if (method === 'CARD') {
+      <label>Numéro de carte
+        <input name="card" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" [(ngModel)]="card.number">
       </label>
-      <label class="grow">CVC
-        <input name="cvc" inputmode="numeric" maxlength="4" [(ngModel)]="card.cvc">
-      </label>
-    </div>
-    <p class="muted small">Paiement simulé : aucune donnée bancaire n'est enregistrée.</p>
+      <div class="row">
+        <label class="grow">Expiration (MM/AA)
+          <input name="expiry" placeholder="08/29" maxlength="5" [(ngModel)]="card.expiry">
+        </label>
+        <label class="grow">CVC
+          <input name="cvc" inputmode="numeric" maxlength="4" [(ngModel)]="card.cvc">
+        </label>
+      </div>
+      <p class="muted small">Paiement simulé : aucune donnée bancaire n'est enregistrée.</p>
+    } @else {
+      <p class="muted">Aucun paiement en ligne : la commande est confirmée et le paiement reste en attente ({{ method === 'CASH' ? 'à régler à la livraison' : 'virement à effectuer' }}).</p>
+    }
+
     @if (error()) {
       <div class="alert error">{{ error() }}</div>
     }
     <div class="actions">
       <button class="btn btn-ghost" (click)="selected.set(null)">Annuler</button>
-      <button class="btn btn-primary" [disabled]="submitting()" (click)="pay()">
-        {{ submitting() ? 'Traitement…' : 'Payer' }}
-      </button>
+      @if (method === 'CARD') {
+        <button class="btn btn-primary" [disabled]="submitting()" (click)="pay()">
+          {{ submitting() ? 'Traitement…' : 'Payer' }}
+        </button>
+      } @else {
+        <button class="btn btn-primary" [disabled]="submitting()" (click)="confirmOther()">
+          {{ submitting() ? 'Traitement…' : 'Confirmer la commande' }}
+        </button>
+      }
     </div>
   </div>
 }

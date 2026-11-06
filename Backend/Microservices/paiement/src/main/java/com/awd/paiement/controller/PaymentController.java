@@ -44,10 +44,16 @@ public class PaymentController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
     @PostMapping("/pay")
     @ResponseStatus(HttpStatus.CREATED)
     public Payment pay(@Valid @RequestBody PayRequest body) {
         return service.pay(body);
+    }
+
+    @PutMapping("/{id}/mark-paid")
+    public Payment markAsPaid(@PathVariable Long id) {
+        return service.markAsPaid(id);
     }
 
     @GetMapping("/by-order/{orderId}")

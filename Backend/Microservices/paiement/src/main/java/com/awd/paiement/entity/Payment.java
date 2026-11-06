@@ -38,8 +38,7 @@ public class Payment {
 
     @PrePersist
     void onCreate() {
-        if (paidAt == null) paidAt = LocalDateTime.now();
-        if (status == null) status = PaymentStatus.PENDING;
+        if (paidAt == null && status == PaymentStatus.PAID) paidAt = LocalDateTime.now();        if (status == null) status = PaymentStatus.PENDING;
         if (transactionRef == null) transactionRef = "TX-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }

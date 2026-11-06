@@ -9,12 +9,10 @@ import { AuthService } from '../../services/auth.service';
 import { CommandeApiService, CommandeOrder, CommandeOrderLine } from '../../services/commande-api.service';
 import { RecommendationService } from '../../services/recommendation.service';
 import { ToastService } from '../../services/toast.service';
-import { PaymentMethod, METHOD_LABELS } from '../../models/order.model';
 import { RecommendationItem } from '../../models/recommendation.model';
 import { productFromRecommendation } from '../../core/product-utils';
 import { isEmail } from '../../core/validators';
 import { errorMessage } from '../../core/http-error';
-import { PaymentService } from '../../services/payment.service';
 
 /**
  * The order and order lines are saved through Commande. Payment is still simulated:
@@ -29,7 +27,16 @@ import { PaymentService } from '../../services/payment.service';
       <h1>🛒 Mon panier</h1>
     </div>
 
-    @if (cart.items().length === 0) {
+        @if (confirmed(); as c) {
+      <div class="card stack">
+        <h2>✅ Commande #{{ c.id }} confirmée</h2>
+        <p class="muted">Elle est en attente de paiement.</p>
+        <div class="actions">
+          <a routerLink="/shop/commandes" class="btn btn-ghost">Mes commandes</a>
+          <a routerLink="/shop/paiements" class="btn btn-primary">Passer au paiement</a>
+        </div>
+      </div>
+    } @else if (cart.items().length === 0) {
       <div class="empty card">
         <p>Votre panier est vide.</p>
         <a routerLink="/shop" class="btn btn-primary">Parcourir les produits</a>
@@ -93,31 +100,8 @@ import { PaymentService } from '../../services/payment.service';
             <textarea name="address" rows="2" [(ngModel)]="form.address" required></textarea>
           </label>
 
-          <fieldset class="methods">
-            <legend>Mode de paiement</legend>
-            @for (m of methods; track m) {
-              <label class="check">
-                <input type="radio" name="method" [value]="m" [(ngModel)]="form.method"> {{ methodLabels[m] }}
-              </label>
-            }
-          </fieldset>
 
-          @if (form.method === 'CARD') {
-            <div class="card-fields stack">
-              <label>Numéro de carte
-                <input name="card" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" [(ngModel)]="form.cardNumber">
-              </label>
-              <div class="row">
-                <label class="grow">Expiration (MM/AA)
-                  <input name="expiry" placeholder="08/29" maxlength="5" [(ngModel)]="form.expiry">
-                </label>
-                <label class="grow">CVC
-                  <input name="cvc" inputmode="numeric" maxlength="4" [(ngModel)]="form.cvc">
-                </label>
-              </div>
-              <p class="muted small">Paiement simulé : aucune donnée bancaire n'est enregistrée.</p>
-            </div>
-          }
+
 
           @if (error()) {
             <div class="alert error">{{ error() }}</div>
@@ -129,7 +113,7 @@ import { PaymentService } from '../../services/payment.service';
           </div>
 
           <button class="btn btn-primary btn-block" [disabled]="submitting()" (click)="submit()">
-            {{ submitting() ? 'Traitement…' : 'Confirmer et payer' }}
+            {{ submitting() ? 'Traitement…' : 'Confirmer la commande' }}
           </button>
         </section>
       </div>
@@ -143,10 +127,9 @@ export class CartComponent implements OnInit {
   private reco = inject(RecommendationService);
   private toast = inject(ToastService);
   private router = inject(Router);
-  private payments = inject(PaymentService);
 
-  readonly methods: PaymentMethod[] = ['CARD', 'CASH', 'TRANSFER'];
-  readonly methodLabels = METHOD_LABELS;
+  readonly confirmed = signal<CommandeOrder | null>(null);
+
 
   readonly suggestions = signal<RecommendationItem[]>([]);
   readonly error = signal('');
@@ -157,10 +140,6 @@ export class CartComponent implements OnInit {
     email: '',
     phone: '',
     address: '',
-    method: 'CARD' as PaymentMethod,
-    cardNumber: '',
-    expiry: '',
-    cvc: ''
   };
 
   ngOnInit(): void {
@@ -205,13 +184,7 @@ export class CartComponent implements OnInit {
     if (!/^\+?[0-9 ]{8,}$/.test(f.phone.trim())) return this.fail('Numéro de téléphone invalide.');
     if (f.address.trim().length < 5) return this.fail('Adresse de livraison trop courte.');
 
-    if (f.method === 'CARD') {
-      const num = f.cardNumber.replace(/\s/g, '');
-      if (!/^\d{16}$/.test(num)) return this.fail('Numéro de carte invalide (16 chiffres).');
-      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(f.expiry)) return this.fail('Date d’expiration invalide (format MM/AA).');
-      if (isExpired(f.expiry)) return this.fail('Cette carte est expirée.');
-      if (!/^\d{3,4}$/.test(f.cvc)) return this.fail('CVC invalide.');
-    }
+  
 
     const overStock = this.cart.items().find(i => i.quantity > i.product.stock);
     if (overStock) {
@@ -225,29 +198,17 @@ export class CartComponent implements OnInit {
         this.submitting.set(true);
     const items = this.cart.items();
     const userId = user.id;
-    const total = this.cart.totalPrice();
-    this.commande.createOrder({
+        this.commande.createOrder({
       userId,
       orderDate: null,
       status: 'EN_ATTENTE'
     }).pipe(
-      concatMap(order => this.createOrderLines(order, items)),
-      concatMap(order => f.method !== 'CARD'
-        ? of({ order, paid: null as boolean | null })
-        : this.payments.pay({ orderId: order.id, userId, amount: total, method: 'CARD' }).pipe(
-            map(() => ({ order, paid: true as boolean | null })),
-            catchError(() => of({ order, paid: false as boolean | null }))
-          ))
+      concatMap(order => this.createOrderLines(order, items))
     ).subscribe({
-      next: ({ order, paid }) => {
+      next: order => {
         this.cart.clearCart();
         this.submitting.set(false);
-        if (paid === false) {
-          this.toast.show(`Commande #${order.id} créée, mais le paiement a échoué. Elle reste en attente.`, 'error');
-        } else {
-          this.toast.show(`Commande #${order.id} enregistrée.`);
-        }
-        this.router.navigate(['/shop/commandes']);
+        this.confirmed.set(order);
       },
       error: error => {
         this.submitting.set(false);

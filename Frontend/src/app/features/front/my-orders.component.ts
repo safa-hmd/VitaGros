@@ -5,7 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { CommandeApiService, CommandeOrder, CommandeOrderLine } from '../../services/commande-api.service';
 import { ToastService } from '../../services/toast.service';
 import { errorMessage } from '../../core/http-error';
-
+import {STATUS_LABELS} from "../../models/order.model";
 @Component({
   selector: 'app-my-orders',
   standalone: true,
@@ -61,9 +61,10 @@ import { errorMessage } from '../../core/http-error';
             <div class="order-foot">
               <span class="muted small">{{ linesFor(order.id).length }} article(s)</span>
               @if (order.status === 'EN_ATTENTE') {
+
+                <a routerLink="/shop/paiements" class="btn btn-primary btn-sm">Payer</a>
                 <button class="btn btn-danger btn-sm" type="button" (click)="cancel(order)" [disabled]="savingId() === order.id">
-                  {{ savingId() === order.id ? 'Annulation…' : 'Annuler' }}
-                </button>
+                  {{ savingId() === order.id ? 'Annulation…' : 'Annuler' }}</button>
               }
             </div>
           </article>
@@ -86,6 +87,11 @@ export class MyOrdersComponent implements OnInit {
   ngOnInit(): void {
     this.reload();
   }
+  statusLabel(s: string): string {
+  return s === 'EN_ATTENTE'
+    ? 'En attente de paiement'
+    : ((STATUS_LABELS as Record<string, string>)[s] ?? s);
+}
 
   reload(): void {
     const userId = this.auth.currentUser()?.id;

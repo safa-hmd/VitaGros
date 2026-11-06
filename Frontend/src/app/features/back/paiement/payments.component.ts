@@ -32,6 +32,13 @@ export class PaymentsAdminComponent implements OnInit {
       error: e => this.toast.show(errorMessage(e, 'Chargement des factures impossible.'), 'error')
     });
   }
+  markPaid(p: Payment): void {
+  if (!confirm(`Confirmer l'encaissement du paiement #${p.id} ?`)) return;
+  this.api.markPaid(p.id).subscribe({
+    next: () => { this.toast.show('Paiement marqué comme payé.'); this.reload(); },
+    error: e => this.toast.show(errorMessage(e, 'Encaissement impossible.'), 'error')
+  });
+}
 
   removePayment(p: Payment): void {
     if (!confirm(`Supprimer le paiement #${p.id} ?`)) return;
@@ -48,4 +55,7 @@ export class PaymentsAdminComponent implements OnInit {
       error: e => this.toast.show(errorMessage(e, 'Suppression impossible (supprimez d’abord son paiement).'), 'error')
     });
   }
+  hasPayment(i: Invoice): boolean {
+  return this.payments().some(p => p.invoice.id === i.id);
+}
 }

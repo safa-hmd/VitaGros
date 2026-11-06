@@ -18,10 +18,15 @@
           <td><span class="badge">{{ p.status }}</span></td>
           <td>{{ p.transactionRef }}</td>
           <td>{{ p.paidAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-          <td><button class="btn btn-danger btn-sm" (click)="removePayment(p)">Supprimer</button></td>
+          <td>
+            @if (p.status === 'PENDING') {
+              <button class="btn btn-primary btn-sm" (click)="markPaid(p)">Marquer payé</button>
+            }
+            <button class="btn btn-danger btn-sm" (click)="removePayment(p)">Supprimer</button>
+          </td>
         </tr>
       } @empty {
-        <tr><td colspan="8" class="muted center">Aucun paiement.</td></tr>
+        <tr><td colspan="9" class="muted center">Aucun paiement.</td></tr>
       }
     </tbody>
   </table>
@@ -45,10 +50,12 @@
           <td>{{ i.amount | number: '1.2-2' }} TND</td>
           <td><span class="badge">{{ i.status }}</span></td>
           <td>{{ i.issueDate | date: 'dd/MM/yyyy' }}</td>
-          <td><button class="btn btn-danger btn-sm" (click)="removeInvoice(i)">Supprimer</button></td>
+          <td><button class="btn btn-danger btn-sm" [disabled]="hasPayment(i)"
+        [title]="hasPayment(i) ? 'Supprimez d’abord son paiement' : ''"
+        (click)="removeInvoice(i)">Supprimer</button></td>
         </tr>
       } @empty {
-        <tr><td colspan="6" class="muted center">Aucune facture.</td></tr>
+        <tr><td colspan="7" class="muted center">Aucune facture.</td></tr>
       }
     </tbody>
   </table>

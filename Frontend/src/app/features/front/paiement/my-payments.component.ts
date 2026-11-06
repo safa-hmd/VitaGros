@@ -33,6 +33,9 @@ export class MyPaymentsComponent implements OnInit {
   readonly error = signal('');
   readonly submitting = signal(false);
   card = { number: '', expiry: '', cvc: '' };
+  readonly methods: PaymentMethod[] = ['CARD', 'CASH', 'TRANSFER'];
+  readonly methodLabels = METHOD_LABELS;
+  method: PaymentMethod = 'CARD';
 
   ngOnInit(): void {
     this.load();
@@ -49,6 +52,27 @@ export class MyPaymentsComponent implements OnInit {
       error: e => this.toast.show(errorMessage(e, 'Chargement des paiements impossible.'), 'error')
     });
   }
+
+  confirmOther(): void {
+  const o = this.selected();
+  const uid = this.auth.currentUser()?.id;
+  if (!o || !uid) return;
+  if (o.amount <= 0) return this.error.set('Montant introuvable pour cette commande.');
+
+  this.submitting.set(true);
+  this.api.pay({ orderId: o.id, userId: uid, amount: o.amount, method: this.method }).subscribe({
+    next: () => {
+      this.submitting.set(false);
+      this.selected.set(null);
+      this.toast.show(`Commande #${o.id} confirmée, paiement en attente.`);
+      this.load();
+    },
+    error: e => {
+      this.submitting.set(false);
+      this.error.set(errorMessage(e, 'Confirmation impossible.'));
+    }
+  });
+}
 
   private loadToPay(uid: number): void {
     forkJoin({
@@ -79,6 +103,7 @@ export class MyPaymentsComponent implements OnInit {
   }
 
   choose(o: UnpaidOrder): void {
+    this.method = 'CARD';
     this.selected.set(o);
     this.card = { number: '', expiry: '', cvc: '' };
     this.error.set('');
