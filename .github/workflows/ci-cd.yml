@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  IMAGE_PREFIX: vitagros   # images : <user>/vitagros-user, vitagros-gateway, ...
+  IMAGE_PREFIX: vitagros   # images : ghcr.io/<owner>/vitagros-user, ...
 
 jobs:
   # ---------- CI : services Spring Boot ----------
@@ -49,8 +49,8 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: Backend/Microservices/recommandation/requirements.txt
-      - run: pip install -r requirements.txt pytest httpx
-      - run: python -m pytest
+      - run: pip install -r requirements.txt
+      - run: pytest
 
   # ---------- CI : frontend Angular ----------
   frontend:
@@ -68,11 +68,14 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-  # ---------- CD : build + push des images Docker ----------
+  # ---------- CD : build + push des images vers GitHub Container Registry ----------
   docker:
     needs: [backend-java, recommandation, frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # nécessaire pour pousser vers ghcr.io avec GITHUB_TOKEN
     strategy:
       fail-fast: false
       matrix:
@@ -86,19 +89,28 @@ jobs:
           - { name: paiement,       context: Backend/Microservices/paiement }
           - { name: livraison,      context: Backend/Microservices/livraison }
           - { name: recommandation, context: Backend/Microservices/recommandation }
+          - { name: frontend,       context: Frontend }
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # ghcr.io/<owner>/vitagros-<service> (mis en minuscules automatiquement)
+          images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
       - uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
