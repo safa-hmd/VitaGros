@@ -101,9 +101,11 @@ services:
     container_name: livraison
     depends_on:
       mysql: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
       eureka: { condition: service_started }
     environment:
       <<: *spring-env
+      RABBITMQ_HOST: rabbitmq
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/livraison_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     ports:
       - "8085:8085"
