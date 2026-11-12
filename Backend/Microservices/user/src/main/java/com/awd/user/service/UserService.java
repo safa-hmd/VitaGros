@@ -3,9 +3,13 @@ package com.awd.user.service;
 import com.awd.user.entity.Role;
 import com.awd.user.entity.User;
 import com.awd.user.repository.UserRepository;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -13,7 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class UserService {
 
+    /** Un hash BCrypt fait toujours 60 caractères : $2a$10$ + 53. */
+    private static final Pattern BCRYPT = Pattern.compile("^\\$2[aby]\\$\\d{2}\\$.{53}$");
+
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<User> findAll() {
         return repository.findAll();
@@ -30,17 +38,22 @@ public class UserService {
         if (e.getRole() == null) e.setRole(Role.USER);
         normalize(e);
         ensureEmailFree(e.getEmail(), null);
+        e.setPassword(passwordEncoder.encode(e.getPassword())); // JAMAIS en clair
         return repository.save(e);
     }
 
     /**
-     * Mise à jour : si le mot de passe n'est pas fourni, on conserve l'actuel.
-     * Le rôle n'est modifiable que si l'appelant le fournit explicitement.
+     * Mise à jour : si le mot de passe n'est pas fourni, on conserve le hash actuel ;
+     * sinon le nouveau mot de passe est hashé. Le rôle n'est modifié que s'il est fourni.
      */
     public User update(Long id, User e) {
         User current = findById(id);
         requireFields(e, false);
-        if (blank(e.getPassword())) e.setPassword(current.getPassword());
+        if (blank(e.getPassword())) {
+            e.setPassword(current.getPassword());
+        } else {
+            e.setPassword(passwordEncoder.encode(e.getPassword()));
+        }
         if (e.getRole() == null) e.setRole(current.getRole());
         normalize(e);
         ensureEmailFree(e.getEmail(), id);
@@ -57,7 +70,7 @@ public class UserService {
     public User authenticate(String email, String password) {
         User user = repository.findFirstByEmailIgnoreCase(email == null ? "" : email.trim())
                 .orElseThrow(this::invalidCredentials);
-        if (password == null || !password.equals(user.getPassword())) {
+        if (password == null || !passwordMatches(user, password)) {
             throw invalidCredentials();
         }
         return user;
@@ -72,6 +85,27 @@ public class UserService {
         user.setPassword(password);
         user.setRole(Role.USER);
         return create(user);
+    }
+
+    /**
+     * Compare avec BCrypt. Migration automatique : si la base contient encore un mot de passe
+     * en clair (anciens comptes), on l'accepte UNE dernière fois puis on le remplace par son hash.
+     */
+    private boolean passwordMatches(User user, String raw) {
+        String stored = user.getPassword();
+        if (blank(stored)) return false;
+
+        if (BCRYPT.matcher(stored).matches()) {
+            return passwordEncoder.matches(raw, stored);
+        }
+
+        boolean legacyOk = MessageDigest.isEqual(
+                stored.getBytes(StandardCharsets.UTF_8), raw.getBytes(StandardCharsets.UTF_8));
+        if (legacyOk) {
+            user.setPassword(passwordEncoder.encode(raw));
+            repository.save(user);
+        }
+        return legacyOk;
     }
 
     private ResponseStatusException invalidCredentials() {

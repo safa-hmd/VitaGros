@@ -5,6 +5,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { UserService } from '../../services/user.service';
 import { CarrierService } from '../../services/carrier.service';
+import { DeliveryService } from '../../services/delivery.service'; // <-- AJOUT
 import { OrderStoreService } from '../../services/order-store.service';
 import { Product } from '../../models/product.model';
 import { ORDER_STEPS, OrderStatus, STATUS_LABELS } from '../../models/order.model';
@@ -27,6 +28,8 @@ import { ORDER_STEPS, OrderStatus, STATUS_LABELS } from '../../models/order.mode
       <div class="card kpi"><span class="kpi-label">Catégories</span><span class="kpi-value">{{ categoryCount() }}</span></div>
       <div class="card kpi"><span class="kpi-label">Utilisateurs</span><span class="kpi-value">{{ userCount() }}</span></div>
       <div class="card kpi"><span class="kpi-label">Livreurs</span><span class="kpi-value">{{ carrierCount() }}</span></div>
+      <!-- NOUVEAU KPI LIVRAISONS -->
+      <div class="card kpi"><span class="kpi-label">Livraisons</span><span class="kpi-value">{{ deliveryCount() }}</span></div>
     </div>
 
     <div class="split">
@@ -86,6 +89,7 @@ export class DashboardComponent implements OnInit {
   private products = inject(ProductService);
   private users = inject(UserService);
   private carriers = inject(CarrierService);
+  private deliveries = inject(DeliveryService); // <-- AJOUT
 
   readonly statuses: OrderStatus[] = [...ORDER_STEPS, 'ANNULEE'];
   readonly loading = signal(true);
@@ -93,6 +97,7 @@ export class DashboardComponent implements OnInit {
   readonly categoryCount = signal(0);
   readonly userCount = signal(0);
   readonly carrierCount = signal(0);
+  readonly deliveryCount = signal(0); // <-- AJOUT
   readonly lowStock = signal<Product[]>([]);
 
   /** Chiffre d'affaires : commandes non annulées et payées */
@@ -109,12 +114,14 @@ export class DashboardComponent implements OnInit {
       products: this.products.getAllProducts().pipe(catchError(() => of([] as Product[]))),
       categories: this.products.getAllCategories().pipe(catchError(() => of([]))),
       users: this.users.getAll().pipe(catchError(() => of([]))),
-      carriers: this.carriers.getAll().pipe(catchError(() => of([])))
+      carriers: this.carriers.getAll().pipe(catchError(() => of([]))),
+      deliveries: this.deliveries.getAll().pipe(catchError(() => of([]))) // <-- AJOUT
     }).subscribe(r => {
       this.productCount.set(r.products.length);
       this.categoryCount.set(r.categories.length);
       this.userCount.set(r.users.length);
       this.carrierCount.set(r.carriers.length);
+      this.deliveryCount.set(r.deliveries.length); // <-- AJOUT
       this.lowStock.set(r.products.filter(p => p.stock < 5).sort((a, b) => a.stock - b.stock));
       this.loading.set(false);
     });

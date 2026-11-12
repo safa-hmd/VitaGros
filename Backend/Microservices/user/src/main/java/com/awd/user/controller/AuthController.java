@@ -2,7 +2,7 @@ package com.awd.user.controller;
 
 import com.awd.user.entity.Role;
 import com.awd.user.entity.User;
-import com.awd.user.security.TokenService;
+import com.awd.user.security.jwt.JwtService;
 import com.awd.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,7 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthController {
 
     private final UserService users;
-    private final TokenService tokens;
+    private final JwtService jwt;
 
     /** portal = espace demandé (USER ou ADMIN) ; le serveur refuse si le rôle ne correspond pas. */
     public record LoginRequest(@NotBlank String email, @NotBlank String password, Role portal) {}
@@ -44,13 +44,13 @@ public class AuthController {
                             ? "Accès réservé : ce compte ne possède pas les droits administrateur"
                             : "Ce compte est administrateur : utilisez la connexion administrateur");
         }
-        return new AuthResponse(tokens.issue(user), user);
+        return new AuthResponse(jwt.generateToken(user.getEmail(), user.getRole().name()), user);
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest body) {
         User user = users.register(body.firstname(), body.lastname(), body.email(), body.password());
-        return new AuthResponse(tokens.issue(user), user);
+        return new AuthResponse(jwt.generateToken(user.getEmail(), user.getRole().name()), user);
     }
 }
