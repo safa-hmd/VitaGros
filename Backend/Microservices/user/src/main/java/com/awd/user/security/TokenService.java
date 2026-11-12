@@ -1,5 +1,6 @@
 package com.awd.user.security;
 
+import com.awd.user.entity.Role;
 import com.awd.user.entity.User;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -20,6 +21,8 @@ public class TokenService {
 
     private static final Base64.Encoder ENC = Base64.getUrlEncoder().withoutPadding();
     private static final Base64.Decoder DEC = Base64.getUrlDecoder();
+
+    public record TokenIdentity(Long userId, Role role) {}
 
     private final byte[] secret;
     private final long ttlSeconds;
@@ -42,19 +45,29 @@ public class TokenService {
 
     /** Vérifie la signature et l'expiration (utilisable par le gateway ou d'autres services). */
     public boolean isValid(String token) {
-        if (token == null) return false;
-        String[] parts = token.split("\\.");
-        if (parts.length != 2) return false;
-        if (!MessageDigest.isEqual(sign(parts[0]).getBytes(StandardCharsets.UTF_8),
-                parts[1].getBytes(StandardCharsets.UTF_8))) {
-            return false;
-        }
         try {
-            String[] fields = new String(DEC.decode(parts[0]), StandardCharsets.UTF_8).split("\\|");
-            return fields.length == 3 && Long.parseLong(fields[2]) > Instant.now().getEpochSecond();
+            validateAndRead(token);
+            return true;
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public TokenIdentity validateAndRead(String token) {
+        if (token == null) {
+            throw new IllegalArgumentException("Token is required");
+        }
+        String[] parts = token.split("\\.");
+        if (parts.length != 2 || !MessageDigest.isEqual(
+                sign(parts[0]).getBytes(StandardCharsets.UTF_8),
+                parts[1].getBytes(StandardCharsets.UTF_8))) {
+            throw new IllegalArgumentException("Invalid token");
+        }
+        String[] fields = new String(DEC.decode(parts[0]), StandardCharsets.UTF_8).split("\\|");
+        if (fields.length != 3 || Long.parseLong(fields[2]) <= Instant.now().getEpochSecond()) {
+            throw new IllegalArgumentException("Invalid or expired token");
+        }
+        return new TokenIdentity(Long.parseLong(fields[0]), Role.valueOf(fields[1]));
     }
 
     private String sign(String body) {
