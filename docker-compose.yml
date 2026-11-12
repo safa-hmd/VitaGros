@@ -1,16 +1,145 @@
+# Lancer depuis la RACINE du projet (là où il y a Backend/ et Frontend/) :
+#   docker compose up -d --build
+x-spring-env: &spring-env
+  EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
+  EUREKA_URL: http://eureka:8761/eureka/          # utilisé par paiement
+  SPRING_DATASOURCE_USERNAME: root
+  SPRING_DATASOURCE_PASSWORD: root
+
 services:
-  rabbitmq:
-    image: rabbitmq:4.3-management   # "-management" = image avec la console web
-    container_name: vitagros-rabbitmq
-    hostname: vitagros-rabbitmq
+  # ---------- Infrastructure ----------
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "5672:5672"    # protocole AMQP (les microservices)
-      - "15672:15672"  # console web
+      - "3307:3306"        # 3307 côté PC pour ne pas entrer en conflit avec un MySQL local
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: awd
       RABBITMQ_DEFAULT_PASS: awd
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  eureka:
+    build: ./Backend/Eureka
+    container_name: eureka
+    ports:
+      - "8761:8761"
+
+  # ---------- Microservices ----------
+  user:
+    build: ./Backend/Microservices/user
+    container_name: user
+    depends_on:
+      mysql: { condition: service_healthy }
+      eureka: { condition: service_started }
+    environment:
+      <<: *spring-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      JWT_SECRET: vitagros-dev-secret-change-me-32chars!
+    ports:
+      - "8081:8081"
+
+  produit:
+    build: ./Backend/Microservices/produit
+    container_name: produit
+    depends_on:
+      mysql: { condition: service_healthy }
+      eureka: { condition: service_started }
+    environment:
+      <<: *spring-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/produit_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    ports:
+      - "8082:8082"
+
+  commande:
+    build: ./Backend/Microservices/commande
+    container_name: commande
+    depends_on:
+      mysql: { condition: service_healthy }
+      eureka: { condition: service_started }
+    environment:
+      <<: *spring-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/commande_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    ports:
+      - "8083:8083"
+
+  paiement:
+    build: ./Backend/Microservices/paiement
+    container_name: paiement
+    depends_on:
+      mysql: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      eureka: { condition: service_started }
+    environment:
+      <<: *spring-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/paiement_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8084:8084"
+
+  livraison:
+    build: ./Backend/Microservices/livraison
+    container_name: livraison
+    depends_on:
+      mysql: { condition: service_healthy }
+      eureka: { condition: service_started }
+    environment:
+      <<: *spring-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/livraison_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    ports:
+      - "8085:8085"
+
+  recommandation:
+    build: ./Backend/Microservices/recommandation
+    container_name: recommandation
+    depends_on:
+      - eureka
+    environment:
+      EUREKA_URL: http://eureka:8761/eureka/
+      INSTANCE_HOST: recommandation        # nom du service dans le réseau Docker
+      PRODUIT_SERVICE_URL: http://produit:8082
+      COMMANDE_SERVICE_URL: http://commande:8083
+    ports:
+      - "5000:5000"
+
+  # ---------- API Gateway ----------
+  gateway:
+    build: ./Backend/gateway
+    container_name: gateway
+    depends_on:
+      - eureka
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka
+    ports:
+      - "8089:8089"
+
+  # ---------- Frontend Angular (nginx) ----------
+  frontend:
+    build: ./Frontend
+    container_name: frontend
+    depends_on:
+      - gateway
+    ports:
+      - "4200:80"      # 4200 obligatoire : le CORS du gateway n'autorise que http://localhost:4200
 
 volumes:
-  rabbitmq-data:
+  mysql_data:
