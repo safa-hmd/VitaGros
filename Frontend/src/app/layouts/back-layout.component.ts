@@ -19,6 +19,7 @@ import { AccountMenuComponent } from '../shared/account-menu.component';
           <a routerLink="/admin/commandes" routerLinkActive="active">🧾 Commandes</a>
           <a routerLink="/admin/paiements" routerLinkActive="active">💳 Paiements</a>
           <a routerLink="/admin/livreurs" routerLinkActive="active">🚚 Livreurs</a>
+          <a routerLink="/admin/livraisons" routerLinkActive="active">📦 Livraisons</a>
         </nav>
       </aside>
       <div class="admin-main">
