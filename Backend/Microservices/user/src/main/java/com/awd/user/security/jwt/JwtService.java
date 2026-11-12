@@ -2,25 +2,25 @@ package com.awd.user.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
+    @Value("${app.jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}")
-    private long expiration;
+    @Value("${app.jwt.ttl-seconds:86400}")
+    private long ttlSeconds;
 
     private SecretKey key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String email, String role) {
@@ -29,13 +29,17 @@ public class JwtService {
                 .subject(email)
                 .claim("role", role)
                 .issuedAt(now)
-                .expiration(new Date(now.getTime() + expiration))
+                .expiration(new Date(now.getTime() + ttlSeconds * 1000))
                 .signWith(key())
                 .compact();
     }
 
     public String extractEmail(String token) {
         return parse(token).getSubject();
+    }
+
+    public String extractRole(String token) {
+        return parse(token).get("role", String.class);
     }
 
     public boolean isValid(String token) {
