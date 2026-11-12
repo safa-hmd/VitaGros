@@ -29,7 +29,7 @@ mvn spring-boot:run
 Errors: 400 validation, 404 not found, 409 integrity violation (duplicate / still referenced) or insufficient stock, 503 user/produit service unavailable.
 
 ## Relations with other services
-| Direction | Service | Call | Why |
+| Direction | Service | Call | Whhy |
 |---|---|---|---|
 | commande → user | `user` (:8081) | `GET /api/users/{id}` | `POST /api/orders`: the `userId` must exist (404 otherwise). On `PUT`, only checked if `userId` changes. |
 | commande → produit | `produit` (:8082) | `GET /api/products/{id}` | `POST/PUT /api/order-lines`: the product must exist; `unitPrice` is taken from the catalogue (value sent by the client is ignored; on `PUT` of the same product the price paid at order time is kept). |
