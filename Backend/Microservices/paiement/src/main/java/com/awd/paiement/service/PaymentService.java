@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -104,12 +105,12 @@ public class PaymentService {
     }
     private void publishCompleted(Payment p) {
         Invoice inv = p.getInvoice();
+        String eventId = UUID.randomUUID().toString();
         rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.PAYMENT_COMPLETED,
-                new PaymentCompleted(UUID.randomUUID().toString(), p.getId(),
-                        inv.getOrderId(), inv.getUserId(), p.getAmount(), p.getMethod(),
-                        p.getTransactionRef(), p.getPaidAt()));
+                new PaymentCompleted(eventId, p.getId(), inv.getOrderId(), inv.getUserId(),
+                        p.getAmount(), p.getMethod(), p.getTransactionRef(), p.getPaidAt()),
+                new CorrelationData(eventId));
     }
-
     @Transactional
     public Payment markAsPaid(Long id) {
         Payment p = findById(id);
