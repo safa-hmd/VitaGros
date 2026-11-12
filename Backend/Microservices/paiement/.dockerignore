@@ -1,6 +1,12 @@
 target/
 .idea/
-.git/
-.gitignore
 *.iml
+.mvn/
+mvnw
+mvnw.cmd
+HELP.md
+.git
+.gitignore
+Dockerfile
+.dockerignore
 README.md
