@@ -5,3 +5,5 @@ requests
 pandas
 numpy
 scikit-learn
+httpx
+py_eureka_client
