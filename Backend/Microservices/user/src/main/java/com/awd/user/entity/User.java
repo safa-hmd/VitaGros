@@ -23,11 +23,13 @@ public class User {
     private String lastname;
 
     @NotBlank
+    @Column(nullable = false, unique = true)
     private String email;
 
     /**
      * Écriture seule : le mot de passe est accepté en entrée (inscription, modification)
      * mais n'est JAMAIS renvoyé dans les réponses JSON (liste, détail, login).
+     * En base, il est stocké sous forme de hash BCrypt (voir UserService).
      */
     @NotBlank
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
